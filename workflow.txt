@@ -24,5 +24,5 @@ Good Coding Practices:
 - In all of your commits, have good and detailed commit messages.
   
 (GPU UPDATES FORTHCOMING)
-(PS: For a sample repository that employs the Step 2 flow of things, please look at https://www.github.com/mahdihosseini/AdaS/tree/master/unpackaged. 
+(PS: For a sample repository that employs the Step 2 flow of things, please look at https://github.com/mahdihosseini/AdaS/tree/master/src/adas). 
 Obviously nowhere near detail is expected, but the general workflow is the same.)

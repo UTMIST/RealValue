@@ -1,0 +1,28 @@
+Step 1:
+
+- The dataset is currently in the "raw_dataset" folder.
+- Preprocessing will be done on this dataset to remove outliers and have a stronger raw dataset. 
+
+- For every image in this "processed_dataset" folder, there will be 3-8 different transformed versions (can change depending on consultation and experimentation).
+- Each "augmented" dataset will be stored in a new folder in the "datasets" folder. 
+  - Note that this "datasets" folder will have a __init__.py for initialization purposes.
+- From this datasets folder, all augmented datasets will be processed to change from the 4 images per house to simply one image (details in next meeting). 
+- Then these augmented datasets will be concatenated for training purposes. 
+- Note that a number-only dataset will also be compiled that is of the same size as the concatenated dataset above (for potential experimentation). 
+
+Step 2:
+
+- All hyperparameters (including model name/dataset name) will be read from a config.yaml file.
+- These hyperparameters will then be fed into a pipeline.py file that does the training.
+- From training, a folder will be created that contains the model weights, accuracy/MAPE graphs/excel file.
+
+- Note that python files for all models will be added to a "models" folder and the models will be imported from there.
+  - The importing of specific models will be done using an __init__.py file in the "models" folder.
+
+Good Coding Practices:
+- Fork THIS repository and if you would like to create any changes, please create a pull request so they can be quickly reviewed. 
+- In all of your commits, have good and detailed commit messages.
+  
+(GPU UPDATES FORTHCOMING)
+(PS: For a sample repository that employs the Step 2 flow of things, please look at https://www.github.com/mahdihosseini/AdaS/tree/master/unpackaged. 
+Obviously nowhere near detail is expected, but the general workflow is the same.)

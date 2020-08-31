@@ -1,0 +1,6 @@
+Bedrooms Bathrooms SqFt ZipCode Price
+4 2 1075 x 799900
+3 2 1339 x 875000
+4 2 1080 x 888000
+4 2 1800 x 899000
+5 2 1170 x 925000

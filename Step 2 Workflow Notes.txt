@@ -1,0 +1,75 @@
+config.yaml:
+
+- Contains the following hyperparameters:
+  - dataset, CNN_model, dense_model, optimizer, LR scheduler, init_lr, momentum, weight_decay, beta, mini-batch size, loss function, number of epochs, train_test split, validation split.
+
+pipeline.py:
+
+- Contains the following functions:
+
+def train(...):
+  '''
+  Inputs: The config.yaml file
+  Output: Training history from model.fit, results from model.evaluate, the model itself
+
+  The goal of this function is to conduct training.
+  The process occurs in the following steps.
+
+  1. Initialize all hyperparameters using the initialize_hyper function detailed above.
+  2. Initialize/create augmented datasets (if it doesn't exist already)
+    - This initialization will be done in a function called initialize_datasets (done in Step 1, so dw)
+    - See Step 1 Workflow Notes for outputs of that function.
+  3. Conduct the training process as follows:
+    - model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
+      - The sub-bullets below are an example of how the model should be initialized. But note that the 3 lines below are done in another file.
+      - Multi_Input = concatenate([Dense_NN.output, CNN.output])
+      - Final_Fully_Connected_Network = Dense((whatever we want), activation = 'relu')(Multi_Input)
+      - Final_Fully_Connected_Network = Dense(1)(Final_Fully_Connected_Network)
+    - model.compile (with appropriate hyperparameters)
+    - history = model.fit (with hyperparameters & training/validation results from 2)
+    - results = model.evaluate (with hyperparameters & test results from 2)
+
+  Refer to https://github.com/omarsayed7/House-price-estimation-from-visual-and-textual-features/blob/master/visual_textual_2.py for a sample implementation.
+  '''
+
+def process_outputs(...);:
+  '''
+  Inputs: History, results and model
+  Output: Nothing, everything happens as function runs.
+
+  The goal of this function is to create the correct output files from the training process.
+  The process occurs in the following steps:
+
+  1. Tap into the dictionary that is history.history
+  2. Create graphs for accuracy and mean average percentage error using matplotlib
+    - Do the above for the validation results as well.
+  3. Also store the accuracy/loss statistics in an Excel file.
+  4. Store model weights using model.save_weights
+  5. Store final training, validation and test results (accuracy, error, network size) in a separate Excel file.
+
+  Altogether, the corresponding output file structure should look as follows:
+
+  output_folder_(modelname)_(learningrate)_(scheduler)_(dataset)_(numberofepochs)
+  --> model_weights
+      -- model_weights.h5
+  --> graphs
+      -- train_accuracy_graph.png
+      -- validation_accuracy_graph.png
+      -- train_loss_graph.png
+      -- validation_loss.png
+  --> stats_files
+      -- train_accuracy.xlsx
+      -- validation_accuracy.xlsx
+      -- train_loss.xlsx
+      -- validation_loss.xlsx
+  --> results_files
+      -- final_results.xlsx
+  '''
+
+models folder
+-- Create a "CNN_models" folder and a "dense_models" folder
+-- Store models as a class in a .py file (think of a LeNet class in lenet.py)
+-- For now, begin with LeNet, VGG16, ResNet18
+-- Then, also add on differing 6,7,8 layer CNNs
+-- For Dense networks, store different 2,3,4 layer dense networks with different final dimension amounts.
+-- These things will be done once the functions above are completed.

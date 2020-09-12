@@ -1,7 +1,7 @@
 config.yaml:
 
 - Contains the following hyperparameters:
-  - dataset, CNN_model, dense_model, optimizer, LR scheduler, init_lr, momentum, weight_decay, beta, mini-batch size, loss function, number of epochs, train_test split, validation split.
+  - dataset, CNN_model, dense_model, optimizer, LR scheduler, init_lr, momentum, weight_decay, beta, mini-batch size, loss function, number of epochs, train_test split, validation split, height/width of processed image.
 
 pipeline.py:
 

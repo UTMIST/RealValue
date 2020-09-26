@@ -7,7 +7,7 @@ pipeline.py:
 
 - Contains the following functions:
 
-def train(...):
+def pipeline(...):
   '''
   Inputs: The config.yaml file
   Output: Training history from model.fit, results from model.evaluate, the model itself

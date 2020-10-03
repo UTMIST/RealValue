@@ -1,2 +1,18 @@
 augmented_datasets/
-raw_dataset/final
+processed_dataset
+
+.DS_Store
+
+# Python
+.Python
+__pycache__/
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/

@@ -1,5 +1,7 @@
 import tensorflow as tf
+from tensorflow import keras
 from keras.models import Model
+from step1 import return_splits
 import time
 import yaml
 import csv
@@ -7,10 +9,13 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import global_vars as GLOBALS
+import time
+import numpy as np
 
 # from models import get_network
-from models.CNN_models.lenet import LeNet
-from models.dense_models.simple_densenet import SimpleDenseNet
+#from models.CNN_models.lenet import LeNet
+#from models.dense_models.simple_densenet import SimpleDenseNet
 
 
 def initialize_hyper(path_to_config):
@@ -58,12 +63,26 @@ def train(path_to_config):
     #TO-DO: Recreate the models/__init__.py from the AdaS repository for our purposes.
     '''
     config = initialize_hyper(path_to_config)
+    print(config)
     if config is None:
         print("error in initialize_hyper")
         sys.exit(1)
+    GLOBALS.CONFIG=config
 
-    train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, \
-        test_images, test_stats, test_prices = initialize_datasets( ... )
+    #train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, \
+        #test_images, test_stats, test_prices = return_splits( ... )
+    directory='raw_dataset'
+    data_dict = return_splits(directory, GLOBALS.CONFIG['train_val_test_split'])
+
+    print(data_dict['train_images'].shape)
+    print(data_dict['train_stats'].shape)
+    print(data_dict['train_prices'].shape)
+    print(data_dict['validation_images'].shape)
+    print(data_dict['validation_stats'].shape)
+    print(data_dict['validation_prices'].shape)
+    print(data_dict['test_images'].shape)
+    print(data_dict['test_stats'].shape)
+    print(data_dict['test_prices'].shape)
 
     CNN_type = config['network']
     CNN = get_network(CNN_type)
@@ -92,6 +111,8 @@ def train(path_to_config):
     result = model.evaluate(test_dataset)
     evaluation_results = dict(zip(model.metrics_names, result))
 
+train('config.yaml')
+
 def save_model(model, model_dir):
     try:
         path = os.path.join(model_dir, "mode_weights.h5")
@@ -100,8 +121,6 @@ def save_model(model, model_dir):
         print("error saving model weights")
         return False
     return True
-
-
 
 def plot(x, y, xlabel, ylabel, title, save=False, filename=None):
     plt.plot(x, y)
@@ -237,12 +256,12 @@ def process_outputs(model, history_dict, results, model_name, learning_rate, sch
     #
     # save_training_validation_test_results()
 
-
+'''
 if __name__ == '__main__':
     process_outputs(model="blah", history_dict={'loss': [0.3379512131214142, 0.16062788665294647],
  'sparse_categorical_accuracy': [0.9043999910354614, 0.9524800181388855],
  'val_loss': [0.18728218972682953, 0.17670848965644836],
- 'val_sparse_categorical_accuracy': [0.9452000260353088, 0.9470999836921692]}, results="blah", model_name="test", learning_rate=0.05, scheduler="Adam", dataset="MNIST", number_of_epochs=500)
+ 'val_sparse_categorical_accuracy': [0.9452000260353088, 0.9470999836921692]}, results="blah", model_name="test", learning_rate=0.05, scheduler="Adam", dataset="MNIST", number_of_epochs=500)'''
     # Model_Name = "Final_House_price_estimation- {}".format(int(time.time()))
     # Model_Name_yml = "Final_House_price_estimation- {}.yaml".format(int(time.time()))
     # #tensorboard = TensorBoard(log_dir= 'logs/{}'.format(Model_Name))

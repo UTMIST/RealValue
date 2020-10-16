@@ -1,0 +1,27 @@
+###### Application Specific ######
+dataset: 'CIFAR10'
+network: 'VGG16'
+optimizer: 'SGD'
+scheduler: 'AdaS'
+
+
+################################################################################
+
+directory: 'raw_dataset'
+CNN_model: 'LeNet'
+dense_model: [5,4,4]
+optimizer: 'Adam'
+LR_scheduler: 'None'
+init_lr: 'None'
+momentum: 0.05
+weight_decay: 0.0001
+beta: 0.8
+mini_batch_size: 10
+loss_function: 'CE'
+number_of_epochs: 10
+train_val_test_split:
+  - 0.7
+  - 0.15
+  - 0.15
+image_height: 100
+image_width: 100

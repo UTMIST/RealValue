@@ -1,0 +1,32 @@
+Note: These are 2 base functions that are required no matter what. Helper functions are allowed to be created.
+
+def create_dataset(...):
+  '''
+  Inputs: dataset name, path to raw dataset folder
+  Outputs: path to concatenated, completely processed, dataset
+
+  The goal of this function is to fully set up the dataset.
+  The process occurs in the following steps.
+
+  1. Create 3-8 augmented datasets for the single raw dataset in the "augmented_datasets folder" (based on specific transformations).
+  2. Note down outliers (look into processes for doing so) in dataset.
+  3. For each augmented dataset, remove the same outliers.
+  4. Concatenate all augmented datasets to create main dataset in the "main_dataset" folder.
+  5. Return path to that folder.
+
+  '''
+
+def return_splits(...):
+  '''
+  Inputs: main_dataset_path, train/test and validation splits.
+  Outputs: train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, test_images, test_stats, test_prices.
+
+  The goal of this function is to return all inputs and outputs required for training.
+  The process occurs in the following steps:
+  1. For the dataset in main_dataset_path, convert the 4 images corresponding to 1 house into 1 image per house
+    - Bedroom top left, bathroom top right, kitchen bottom left, frontal top right.
+    - Write these images to main_dataset_path/final
+  2. Use the "main_dataset/final" folder, the train_test splits and main_dataset/HousesInfo.txt to split the dataset appropriately into training, validation and test sections
+  3. Return all of the above required Outputs within a Dictionary.
+    - aka {"train_images":train_images, "train_stats":train_stats}
+  '''

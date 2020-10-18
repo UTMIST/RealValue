@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import numpy as np
 import pandas as pd
+import global_vars as GLOBALS
 
 # Set individual image sizes here
 
@@ -178,10 +179,28 @@ def split_image_data(directory, splitting_parameter):
     train_images = []
     test_images = []
     validation_images = []
+    # first_img_file = file_list[0]
+    # first_img_file_path = os.path.join(directory, first_img_file)
+    # first_img = cv2.imread(first_img_file_path)
+    # train_images = np.copy(first_img)
+    # #np.zeros(first_img.shape, first_img.dtype)
+    # validation_images = np.copy(first_img)
+    # test_images = np.copy(first_img)
+
+    print("Debug info (Sean)")
+    # print(file_list)
+    # print(directory)
+
+    # print(first_img_file)
+    # print(first_img)
+    # print(first_img.shape)
+    # print(first_img.dtype)
+
     #iterate through all images in the folder
     img_counter = 0
     for img_file in file_list:
-        img = cv2.imread(img_file)
+        img_file_path = os.path.join(directory, img_file)
+        img = cv2.imread(img_file_path)
         img_counter += 1
         if len(train_images) < num_train:
             train_images.append(img)
@@ -200,6 +219,9 @@ def split_image_data(directory, splitting_parameter):
     train_images = np.array(train_images)
     validation_images = np.array(validation_images)
     test_images = np.array(test_images)
+
+    # visualize different images in split dataset to ensure proper shape
+    display_image(train_images[20])
 
     print("train images shape:", train_images.shape)
     print("validation images shape:", validation_images.shape)

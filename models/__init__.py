@@ -18,6 +18,7 @@ def get_network(CNN_name, dense_layers, CNN_input_shape) -> None:
 
     if CNN_name == 'LeNet':
         CNN_model = build_LeNet(input_shape=CNN_input_shape)
+
     elif CNN_name == 'MiniVGG':
         CNN_model = MiniVGGNetModel()
     elif CNN_name == 'VGG16':

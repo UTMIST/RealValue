@@ -1,15 +1,13 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-#from CNN_models.vgg import VGG16
-#from CNN_models.ResNet18 import ResNet18
-from models.CNN_models.lenet import build_LeNet #LeNet
-from models.CNN_models.MiniVGGNet import MiniVGGNetModel
-#from CNN_models.name_of_file_import name_of_class
 
-def get_network(CNN_name, dense_layers) -> None:
+from models.CNN_models.lenet import build_LeNet
+from models.CNN_models.MiniVGGNet import MiniVGGNetModel
+
+def get_network(CNN_name, dense_layers, CNN_input_shape) -> None:
     #create dense network dynamically based on input
-    layer_list=[keras.Input(shape=(4,))]
+    layer_list=[keras.Input(shape=(24,))]
     for i in range(len(dense_layers)):
         name = "layer" + str(i+1)
         layer_list+=[layers.Dense(dense_layers[i], activation="relu", name=name)] #final output layer, no activation for next layer
@@ -19,8 +17,8 @@ def get_network(CNN_name, dense_layers) -> None:
     #select the CNN network
 
     if CNN_name == 'LeNet':
-        # CNN_model = LeNet()
-        CNN_model = build_LeNet()
+        CNN_model = build_LeNet(input_shape=CNN_input_shape)
+
     elif CNN_name == 'MiniVGG':
         CNN_model = MiniVGGNetModel()
     elif CNN_name == 'VGG16':
@@ -30,8 +28,7 @@ def get_network(CNN_name, dense_layers) -> None:
     else:
         CNN_model = None
     print('True')
-    #CNN_model.build((None, 32, 32, 3))
-    # print(CNN_model.model().summary())
+
     print(CNN_model.summary())
     return dense_model, CNN_model
 

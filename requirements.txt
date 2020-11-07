@@ -2,3 +2,4 @@ tensorflow==2.3.0
 matplotlib
 opencv-python
 numpy
+pandas

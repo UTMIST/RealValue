@@ -12,15 +12,24 @@ import matplotlib.pyplot as plt
 import global_vars as GLOBALS
 import time
 import numpy as np
+import random
 # from models import get_network
 import models
 from models import get_network
-
 
 # from models import get_network
 #from models.CNN_models.lenet import LeNet
 #from models.dense_models.simple_densenet import SimpleDenseNet
 
+# Set global seeds for more deterministic training
+SEED = 0
+
+tf.random.set_seed(SEED)
+os.environ['PYTHONHASHSEED']=str(SEED)
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
+random.seed(SEED)
+np.random.seed(SEED)
 
 def initialize_hyper(path_to_config):
     '''
@@ -75,22 +84,26 @@ def train(path_to_config='config.yaml'):
 
     #train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, \
         #test_images, test_stats, test_prices = return_splits( ... )
-    directory='raw_dataset'
-    data_dict = return_splits(directory, GLOBALS.CONFIG['train_val_test_split'])
+    directories=['splitted_dataset/train','splitted_dataset/val','splitted_dataset/test']
+    data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
 
     print('Train Images:',data_dict['train_images'].shape)
     print('Train Stats:',data_dict['train_stats'].shape)
+    print('Train Min/max',data_dict['train_min_max'])
     print('Train Prices:',data_dict['train_prices'].shape)
     print('Validation Images:',data_dict['validation_images'].shape)
     print('Validation Stats:',data_dict['validation_stats'].shape)
     print('Validation Prices:',data_dict['validation_prices'].shape)
+    print('Validation Min/max',data_dict['validation_min_max'])
     print('Test Images:',data_dict['test_images'].shape)
     print('Test Validation:',data_dict['test_stats'].shape)
+    print('Test Min/Max',data_dict['test_min_max'])
     print('Test Prices:',data_dict['test_prices'].shape)
+
+    print('Validation Stats Array:',data_dict['validation_stats'])
 
     CNN_type = config['CNN_model']
     Dense_NN, CNN = get_network(CNN_type, dense_layers=config['dense_model'], CNN_input_shape=config['CNN_input_shape'])
-    # Dense_NN = SimpleDenseNet(train_stats.shape[1])
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
     Final_Fully_Connected_Network = tf.keras.layers.Dense(32, activation = 'relu')(Multi_Input)
@@ -128,8 +141,6 @@ def train(path_to_config='config.yaml'):
 
     return model, history, results
 
-# train()
-
 def save_model(model, model_dir):
     try:
         path = os.path.join(model_dir, "mode_weights.h5")
@@ -139,11 +150,12 @@ def save_model(model, model_dir):
         return False
     return True
 
-def plot(x, y, xlabel, ylabel, title, save=False, filename=None):
+def plot(x, y, xlabel, ylabel, title, save=False, filename=None, ylim=(0,200)):
     plt.plot(x, y)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
+    plt.ylim(ylim)
 
     if save:
         plt.savefig(filename)
@@ -240,21 +252,17 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
 
     save_dict_to_csv(dict=history_dict, csv_file_path=os.path.join(stats_dir, 'training_history.csv'), fieldnames_header=training_csv_header, start_row_num_from_1=True)
 
-    # with open(os.path.join(stats_dir, 'training_history.csv'), 'w+', newline='') as csv_file:
-    #     writer = csv.writer(csv_file)
-    #
-    #     fieldnames_header = ["epoch"] + list(history_dict.keys())
-    #     writer.writerow(fieldnames_header)
-    #
-    #     for epoch in range(len(list(history_dict.values())[0])):
-    #         epoch_results = [metric[epoch] for metric in history_dict.values()]
-    #         writer.writerow([epoch] + epoch_results)
-
     # # Create graphs for accuracy and mean average percentage error using matplotlib
     training_results = convert_csv_to_dict(os.path.join(stats_dir, 'training_history.csv'))
-    plot(training_results["epoch"], training_results["loss"], xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
+    epoch_data = np.array(training_results["epoch"]).astype(np.float)
+    loss_data = np.array(training_results["loss"]).astype(np.float)
+    mean_absolute_percentage_error_data = np.array(training_results["mean_absolute_percentage_error"]).astype(np.float)
+    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
+    plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(stats_dir, "mean_absolute_percentage_error.png"))
+    # plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
 
-    # graph_acc_and_MAP()
+    # plot(training_results["epoch"], training_results["loss"], xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
+
     saved = save_model(model, model_weights_dir)
     if not saved:
         print("didn't save model weights")

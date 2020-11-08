@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import layers
 
 def build_LeNet(input_shape=(240,240,3)):
-    layer_list=[layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=input_shape),#(240,240,3)),#input_shape=(32,32,1)),
+    layer_list=[layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu', input_shape=input_shape),
                 layers.AveragePooling2D(),
                 layers.BatchNormalization(),
                 layers.Conv2D(filters=6, kernel_size=(3, 3), activation='relu'),

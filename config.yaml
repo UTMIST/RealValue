@@ -1,8 +1,8 @@
 ###### Application Specific ######
-dataset: 'CIFAR10'
-network: 'VGG16'
-optimizer: 'SGD'
-scheduler: 'AdaS'
+# dataset: 'CIFAR10'
+# network: 'VGG16'
+# optimizer: 'SGD'
+# scheduler: 'AdaS'
 
 
 ################################################################################

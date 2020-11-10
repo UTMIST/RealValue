@@ -12,6 +12,10 @@ import matplotlib.pyplot as plt
 import global_vars as GLOBALS
 import time
 import numpy as np
+# from models import get_network
+import models
+from models import get_network
+
 
 # from models import get_network
 #from models.CNN_models.lenet import LeNet
@@ -74,20 +78,20 @@ def train(path_to_config):
     directory='raw_dataset'
     data_dict = return_splits(directory, GLOBALS.CONFIG['train_val_test_split'])
 
-    print(data_dict['train_images'].shape)
-    print(data_dict['train_stats'].shape)
-    print(data_dict['train_prices'].shape)
-    print(data_dict['validation_images'].shape)
-    print(data_dict['validation_stats'].shape)
-    print(data_dict['validation_prices'].shape)
-    print(data_dict['test_images'].shape)
-    print(data_dict['test_stats'].shape)
-    print(data_dict['test_prices'].shape)
+    print('Train Images:',data_dict['train_images'].shape)
+    print('Train Stats:',data_dict['train_stats'].shape)
+    print('Train Prices:',data_dict['train_prices'].shape)
+    print('Validation Images:',data_dict['validation_images'].shape)
+    print('Validation Stats:',data_dict['validation_stats'].shape)
+    print('Validation Prices:',data_dict['validation_prices'].shape)
+    print('Test Images:',data_dict['test_images'].shape)
+    print('Test Validation:',data_dict['test_stats'].shape)
+    print('Test Prices:',data_dict['test_prices'].shape)
 
-    CNN_type = config['network']
-    CNN = get_network(CNN_type)
-    Dense_NN = SimpleDenseNet(train_stats.shape[1])
-    Multi_Input = concatenate([Dense_NN.output, CNN.output])
+    CNN_type = config['CNN_model']
+    Dense_NN, CNN = get_network(CNN_type, dense_layers=[8,4])
+    # Dense_NN = SimpleDenseNet(train_stats.shape[1])
+    Multi_Input = np.concatenate([Dense_NN.output, CNN.output])
 
     Final_Fully_Connected_Network = Dense(4, activation = 'relu')(Multi_Input)
     Final_Fully_Connected_Network = Dense(1)(Final_Fully_Connected_Network)

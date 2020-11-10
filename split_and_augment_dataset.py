@@ -4,8 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import time
+import global_vars as GLOBALS
+
 from rotate_and_crop import rotate_and_crop as rotcrop
 from train_test_val_split_class import train_test_val_split_class as train_test_val_split_class
+# from pipeline import initialize_hyper
 
 def gen_augmented_dataset(i, dataset_dir_name, augmented_dir_name, seed_num):
     """
@@ -135,7 +138,8 @@ def split_and_augment_train_dataset(ratio, dataset_full_path, txt_filename_raw, 
     train_dir = ''
     if split == True:
         start_time = time.time()
-        splitter = train_test_val_split_class(dataset_full_path, txt_filename_raw, train_val_test_ratio)
+        # splitter = train_test_val_split_class(dataset_full_path, txt_filename_raw, train_val_test_ratio)
+        splitter = train_test_val_split_class(dataset_full_path, txt_filename_raw, ratio)
         splitter.do_split()
         end_time = time.time()
         print("Splitting the dataset took " + str(end_time-start_time) + " seconds")
@@ -158,11 +162,20 @@ def split_and_augment_train_dataset(ratio, dataset_full_path, txt_filename_raw, 
 
 ################################################################################
 
+'''
 if __name__ == '__main__':
     #CHANGE THIS STUFF IF NEEDED:
-    n = 2 #number of times to augment the original train set
+    config = initialize_hyper('config.yaml')
+    print(config)
+    if config is None:
+        print("error in initialize_hyper")
+        sys.exit(1)
+    GLOBALS.CONFIG=config
+
+    # n = 2 #number of times to augment the original train set
+    n = GLOBALS.CONFIG['augmentation_multiplier'] - 1
     dataset_name = 'raw_dataset' #name of the dataset
-    train_val_test_ratio = (0.70,0.10,0.20) #train, val, test ratio
+    train_val_test_ratio = GLOBALS.CONFIG['train_val_test_ratio']#(0.70,0.10,0.20) #train, val, test ratio
     txt_filename_raw = 'HousesInfo.txt' #name of the txt label file in the original dataset
 
     ############################################################################
@@ -171,3 +184,4 @@ if __name__ == '__main__':
     current_working_dir = os.getcwd() #current working directory
     dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset
     split_and_augment_train_dataset(train_val_test_ratio, dataset_full_path, txt_filename_raw, n, split=True, augment=True)
+'''

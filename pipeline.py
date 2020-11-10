@@ -16,6 +16,7 @@ import random
 # from models import get_network
 import models
 from models import get_network
+from split_and_augment_dataset import split_and_augment_train_dataset
 
 # from models import get_network
 #from models.CNN_models.lenet import LeNet
@@ -45,9 +46,36 @@ def initialize_hyper(path_to_config):
             return None
 
 def initialize_datasets():
-    # augments datasets if it doesn't already exist
-    # loads datasets otherwise
-    pass
+    '''
+    Splits and augments dataset if splitted/augmented version doesn't already exist
+    '''
+
+    # config = initialize_hyper('config.yaml')
+    # print(config)
+    # if config is None:
+    #     print("error in initialize_hyper")
+    #     sys.exit(1)
+    # GLOBALS.CONFIG=config
+
+    #CHANGE THIS STUFF IF NEEDED:
+    n = GLOBALS.CONFIG['augmentation_multiplier'] - 1 #number of times to augment the original train set
+    dataset_name = GLOBALS.CONFIG['directory'] #name of the dataset
+    train_val_test_ratio = GLOBALS.CONFIG['train_val_test_ratio']#(0.70,0.10,0.20) #train, val, test ratio
+    txt_filename_raw = 'HousesInfo.txt' #name of the txt label file in the original dataset
+
+    ############################################################################
+    #It is assumed that this script is in the same directory as the raw_dataset
+    current_working_dir = os.getcwd() #current working directory
+    dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset
+
+    ratio_str_list = [str(elem) for elem in train_val_test_ratio]
+    splitted_base_dir_name = 'splitted_dataset_' + '_'.join(ratio_str_list) #name of the splitted dataset
+
+    #check if the splitted/augmented dataset is already created; if not, then create it
+    if not os.path.isdir(os.path.join(current_working_dir, splitted_base_dir_name)):
+        split_and_augment_train_dataset(train_val_test_ratio, dataset_full_path, txt_filename_raw, n, split=True, augment=True)
+
+    return True
 
 def train(path_to_config='config.yaml'):
     '''
@@ -75,16 +103,16 @@ def train(path_to_config='config.yaml'):
 
     #TO-DO: Recreate the models/__init__.py from the AdaS repository for our purposes.
     '''
-    config = initialize_hyper(path_to_config)
-    print(config)
-    if config is None:
-        print("error in initialize_hyper")
-        sys.exit(1)
-    GLOBALS.CONFIG=config
+    # config = initialize_hyper(path_to_config)
+    # print(config)
+    # if config is None:
+    #     print("error in initialize_hyper")
+    #     sys.exit(1)
+    # GLOBALS.CONFIG=config
 
     #train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, \
         #test_images, test_stats, test_prices = return_splits( ... )
-    directories=['splitted_dataset/train','splitted_dataset/val','splitted_dataset/test']
+    directories=['splitted_dataset/train_augmented','splitted_dataset/val','splitted_dataset/test'] #The augmented dataset is in directory train_augmented
     data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
 
     print('Train Images:',data_dict['train_images'].shape)
@@ -189,7 +217,7 @@ def convert_csv_to_dict(csv_file_path):
 
     return dict
 
-def process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs):
+def process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs, path_to_config='config.yaml'):
     '''
     Inputs: History, results and model
     Output: Nothing, everything happens as function runs.
@@ -225,15 +253,16 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     --> results_files
       -- final_results.csv
     '''
-
+    # Message, Minimum Loss of the Run, hyperparameters utilised
     # Create output directory and subdirectory paths for model weights and results
+
     model_name = model.name
     learning_rate = tf.keras.backend.eval(model.optimizer.lr)
 
     output_folder_name = "output_folder_%s_%s_%s_%s_%s" % (model_name, learning_rate, scheduler, dataset, number_of_epochs)
     output_dir = os.path.join(os.path.dirname(__file__), output_folder_name)
     model_weights_dir = os.path.join(output_dir, "model_weights")
-    graphs_dir = os.path.join(output_dir, "graphs")
+    graphs_dir = os.path.join(output_dir, "graphs_and_message")
     stats_dir = os.path.join(output_dir, "stats")
     results_dir = os.path.join(output_dir, "results_files")
 
@@ -257,8 +286,8 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     epoch_data = np.array(training_results["epoch"]).astype(np.float)
     loss_data = np.array(training_results["loss"]).astype(np.float)
     mean_absolute_percentage_error_data = np.array(training_results["mean_absolute_percentage_error"]).astype(np.float)
-    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
-    plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(stats_dir, "mean_absolute_percentage_error.png"))
+    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(graphs_dir, "loss.png"))
+    plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(graphs_dir, "mean_absolute_percentage_error.png"))
     # plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
 
     # plot(training_results["epoch"], training_results["loss"], xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
@@ -269,15 +298,32 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     else:
         print("saved model to disk")
 
+    peak_loss = max(loss_data)
+    personal_message=str(input('What makes this run different? \n'))
+    r = open(path_to_config, 'r')
+    config_lines = r.readlines()
+    print(config_lines)
+    f = open(os.path.join(graphs_dir, 'information.txt'), "a")
+    f.write(str(peak_loss))
+    f.write("\n")
+    f.write(personal_message)
+    f.write("\n")
+    f.writelines(config_lines)
+    f.close()
+    r.close()
 
 if __name__ == '__main__':
     path_to_config='config.yaml'
+
     config = initialize_hyper(path_to_config)
     print(config)
     if config is None:
         print("error in initialize_hyper")
         sys.exit(1)
     GLOBALS.CONFIG=config
+    print("start initializing dataset")
+    initialize_datasets()
+    print("finished initializing dataset")
 
     model, history, results = train()
     # process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs):

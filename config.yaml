@@ -13,7 +13,7 @@ learning_rate: 0.01
 beta: 0.8
 mini_batch_size: 10
 loss_function: 'mape'
-number_of_epochs: 20
+number_of_epochs: 3
 train_val_test_split:
   - 0.7
   - 0.15
@@ -21,3 +21,5 @@ train_val_test_split:
 image_height: 100
 image_width: 100
 CNN_input_shape: [240, 240, 3]
+train_val_test_ratio: [0.70,0.10,0.20]
+augmentation_multiplier: 2

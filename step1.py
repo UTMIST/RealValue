@@ -170,8 +170,8 @@ def split_stats_data(directory, splitting_parameter):
 
     return train_stats,validation_stats,test_stats,train_prices,validation_prices,test_prices,min_max_values
 '''
-def split_stats_data(directory, tag = 'train', oneh_encoder = None):
-    df = pd.read_fwf(directory+'/'+tag+'_'+'HousesInfo.txt')
+def true_dataframe(directory_path):
+    df = pd.read_fwf(directory_path, header=None)
     new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','ZipCode','Price'])
 
     def remove_values_from_list(the_list, val):
@@ -191,8 +191,11 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
             print(final, index)
             a=b'''
         new_df.loc[index]=final
-
     new_df = new_df.drop('ZipCode', 1)
+    return new_df
+
+def split_stats_data(directory, tag = 'train', oneh_encoder = None):
+    new_df = true_dataframe(directory+'/'+tag+'_'+'HousesInfo.txt')
 
     print(new_df.head())
     price_min=new_df['Price'].min()
@@ -219,9 +222,6 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     print(cat_onehot1)
     '''
 
-    if (tag=="train"):
-        oneh_encoder = OneHotEncoder()
-        oneh_encoder.fit(new_df[categorical_feats])
     cat_onehot=oneh_encoder.transform(new_df[categorical_feats]).toarray()
     '''
     for i, feature in enumerate(categorical_feats):
@@ -241,79 +241,6 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
 
 #just pass in main_dataset/final as directory I think
 #splitting_paramter [train_ratio, val_ratio, test_ratio] example [0.7, 0.15, 0.15]
-
- # 0.25 x 0.8 = 0.2
-'''def split_image_data(directory, splitting_parameter):
-    file_list = os.listdir(directory)
-    num_train = int(len(file_list) * splitting_parameter[0])
-    num_validate = int(len(file_list) * splitting_parameter[1])
-    num_test = len(file_list) - num_train - num_validate
-
-    get the dimensions of the image from reading 1 image in the folder
-    for image_name in file_list:
-        try:
-            img_shape = cv2.imread(image_name).shape
-        except:
-            print("error reading a single image")
-        break
-    (rows, cols, channels) = img_shape
-    train_images = np.zeros(shape=(num_train, rows, cols, channels))
-    validation_images = np.zeros(shape=(num_validate, rows, cols, channels))
-    test_images = np.zeros(shape=(num_test, rows, cols, channels))
-
-    train_images = []
-    test_images = []
-    validation_images = []
-    # first_img_file = file_list[0]
-    # first_img_file_path = os.path.join(directory, first_img_file)
-    # first_img = cv2.imread(first_img_file_path)
-    # train_images = np.copy(first_img)
-    # #np.zeros(first_img.shape, first_img.dtype)
-    # validation_images = np.copy(first_img)
-    # test_images = np.copy(first_img)
-
-    print("Debug info (Sean)")
-    # print(file_list)
-    # print(directory)
-
-    # print(first_img_file)
-    # print(first_img)
-    # print(first_img.shape)
-    # print(first_img.dtype)
-
-    #iterate through all images in the folder
-    img_counter = 0
-    for img_file in file_list:
-        img_file_path = os.path.join(directory, img_file)
-        img = cv2.imread(img_file_path)
-        img_counter += 1
-        if len(train_images) < num_train:
-            train_images.append(img)
-            continue
-        elif len(validation_images) < num_validate:
-            validation_images.append(img)
-            continue
-        elif len(test_images) < num_test:
-            test_images.append(img)
-            continue
-    if len(train_images)==num_train and len(validation_images)==num_validate and len(test_images)==num_test:
-        print("correctly split")
-    else:
-        print("splitting was incorrect")
-
-    train_images = np.array(train_images)
-    validation_images = np.array(validation_images)
-    test_images = np.array(test_images)
-
-    # visualize different images in split dataset to ensure proper shape
-    display_image(train_images[20])
-
-    print("train images shape:", train_images.shape)
-    print("validation images shape:", validation_images.shape)
-    print("test images shape:", test_images.shape)
-
-    return train_images, validation_images, test_images
-'''
 def split_image_data(directory, tag='train'):
     file_list = os.listdir(directory)
     '''
@@ -361,14 +288,6 @@ def split_image_data(directory, tag='train'):
     print(tag+" images shape:", images.shape)
     return images
 
-'''def return_splits(directory, splitting_parameter):
-    final_directory=directory+"/final"
-    compile_full_image(directory, final_directory)
-    train_images, validation_images, test_images = split_image_data(final_directory,splitting_parameter)
-    train_stats,validation_stats,test_stats,train_prices,validation_prices,test_prices,min_max_values = split_stats_data(directory,splitting_parameter)
-    main_dict={'train_images':train_images,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images,'test_stats':test_stats,'test_prices':test_prices, 'min_max_values':min_max_values}
-    return main_dict'''
-
 def return_splits(directories):
     [train_directory, val_directory, test_directory]=directories
     train_directory_final = train_directory + '_final'
@@ -382,10 +301,21 @@ def return_splits(directories):
     train_images = split_image_data(train_directory_final,"Train")
     validation_images = split_image_data(val_directory_final,"Validation")
     test_images = split_image_data(test_directory_final,"Test")
+    #Locate path of full houseinfo.txt
+    dataset_name = 'raw_dataset'
+    house_info = 'HousesInfo.txt'
+    current_working_dir = os.getcwd() #current working directory
+    dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset
+    house_info_path = os.path.join(dataset_full_path,house_info)
+    #Initialize OneHotEncoder and fit to full houseinfo.txt for categorical features
+    df = true_dataframe(house_info_path)
+    categorical_feats=['Bedrooms','Bathrooms']
+    oneh_encoder = OneHotEncoder()
+    oneh_encoder.fit(df[categorical_feats])
     #Fetch stats from train,valid,test images
-    train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = None)
-    validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = train_oneh_encoder)
-    test_stats, test_prices, test_min_max, train_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = train_oneh_encoder)
+    train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder)
+    validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder)
+    test_stats, test_prices, test_min_max, train_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = oneh_encoder)
     #Create dict with all required information
     main_dict={'train_images':train_images,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
     return main_dict

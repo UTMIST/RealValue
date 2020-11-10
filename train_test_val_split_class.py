@@ -14,7 +14,8 @@ class train_test_val_split_class:
         self.dataset_dir_name = dataset_dir_name
         self.root = os.path.dirname(self.dataset_dir_name) #directory in which dataset_dir_name is in
         self.dataset_dir = os.path.join(self.root, dataset_dir_name) #directory of original dataset
-        self.splitted_dataset_dir = os.path.join(self.root, 'splitted_dataset') #directory of splitted dataset
+        # self.splitted_dataset_dir = os.path.join(self.root, 'splitted_dataset') #directory of splitted dataset
+        self.splitted_dataset_dir = os.path.join(self.root, 'splitted_dataset_' + str(ratio[0]) + '_' + str(ratio[1]) + '_' + str(ratio[2])) #directory of splitted dataset
         self.train_dir = os.path.join(self.splitted_dataset_dir, 'train')
         self.val_dir = os.path.join(self.splitted_dataset_dir, 'val')
         self.test_dir = os.path.join(self.splitted_dataset_dir, 'test')

@@ -40,7 +40,7 @@ def initialize_datasets():
     # loads datasets otherwise
     pass
 
-def train(path_to_config):
+def train(path_to_config='config.yaml'):
     '''
     Inputs: The config.yaml file
     Output: Training history from model.fit, results from model.evaluate, the model itself
@@ -89,33 +89,46 @@ def train(path_to_config):
     print('Test Prices:',data_dict['test_prices'].shape)
 
     CNN_type = config['CNN_model']
-    Dense_NN, CNN = get_network(CNN_type, dense_layers=[8,4])
+    Dense_NN, CNN = get_network(CNN_type, dense_layers=config['dense_model'], CNN_input_shape=config['CNN_input_shape'])
     # Dense_NN = SimpleDenseNet(train_stats.shape[1])
-    Multi_Input = np.concatenate([Dense_NN.output, CNN.output])
+    Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
-    Final_Fully_Connected_Network = Dense(4, activation = 'relu')(Multi_Input)
-    Final_Fully_Connected_Network = Dense(1)(Final_Fully_Connected_Network)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(32, activation = 'relu')(Multi_Input)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'sigmoid')(Final_Fully_Connected_Network)
 
     model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
-    model.compile(optimizer = config['optimizer'], loss = config['loss'],
-        metrics=[tf.keras.metrics.Accuracy(), tf.keras.metrics.MeanAbsolutePercentageError()])
-    history = model.fit([train_stats,train_images], train_prices, validation_split = config['validation_split'],
-            epochs = config['epochs'],
-            batch_size = config['batch_size'],
-            callbacks= [tensorboard]) #not sure if we have the tensorfboard callback
+
+    optimizer_functions={'Adam':keras.optimizers.Adam}
+    optimizer=optimizer_functions[config['optimizer']](lr= config['learning_rate'])
+
+    model.compile(optimizer=optimizer, loss = config['loss_function'],
+        metrics=[tf.keras.metrics.MeanAbsolutePercentageError()])
+    # history = model.fit([train_stats,train_images], train_prices, validation_split = config['validation_split'],
+    #         epochs = config['epochs'],
+    #         batch_size = config['batch_size'],
+    #         callbacks= [tensorboard]) #not sure if we have the tensorfboard callback
+    print("model.fit Debugging Info")
+    print(data_dict["train_stats"][0].shape)
+    print(data_dict["train_stats"][0].dtype)
+    print(data_dict["train_stats"][0])
+    history = model.fit(x=[data_dict["train_stats"],data_dict['train_images']], y=data_dict['train_prices'], validation_data=([data_dict["validation_stats"],data_dict['validation_images']], data_dict['validation_prices']),
+            epochs = config['number_of_epochs'],
+            batch_size = config['mini_batch_size'])
 
     #I'm not sure how we are incorporating the validation dataset into our training code?
-    preds = model.predict([test_stats,test_images])
-
+    #preds = model.predict([data_dict['test_stats'],data_dict['test_images']])
+    #print(preds)
 
 
     # results = model.evaluate (with hyperparameters & test results from 2)
     # btw, I also added these lines below for some other metrics I need for plotting
     # i guess we can ask Arsh where the model evaluation code should be ok
-    result = model.evaluate(test_dataset)
-    evaluation_results = dict(zip(model.metrics_names, result))
+    results = model.evaluate([data_dict['test_stats'],data_dict['test_images']], data_dict['test_prices'], batch_size=config['mini_batch_size'])
+    evaluation_results = dict(zip(model.metrics_names, results))
 
-train('config.yaml')
+    return model, history, results
+
+# train()
 
 def save_model(model, model_dir):
     try:
@@ -164,7 +177,7 @@ def convert_csv_to_dict(csv_file_path):
 
     return dict
 
-def process_outputs(model, history_dict, results, model_name, learning_rate, scheduler, dataset, number_of_epochs):
+def process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs):
     '''
     Inputs: History, results and model
     Output: Nothing, everything happens as function runs.
@@ -202,6 +215,9 @@ def process_outputs(model, history_dict, results, model_name, learning_rate, sch
     '''
 
     # Create output directory and subdirectory paths for model weights and results
+    model_name = model.name
+    learning_rate = tf.keras.backend.eval(model.optimizer.lr)
+
     output_folder_name = "output_folder_%s_%s_%s_%s_%s" % (model_name, learning_rate, scheduler, dataset, number_of_epochs)
     output_dir = os.path.join(os.path.dirname(__file__), output_folder_name)
     model_weights_dir = os.path.join(output_dir, "model_weights")
@@ -245,71 +261,16 @@ def process_outputs(model, history_dict, results, model_name, learning_rate, sch
     else:
         print("saved model to disk")
 
-    #why do we need to convert the model back to YAML? it seems like we just want a model_weights.h5
-    # Save model
-    #
-    # # serialize model to YAML
-    # model_yaml = model.to_yaml()
-    # with open(Model_Name_yml, "w+") as yaml_file:
-    #     yaml_file.write(model_yaml)
-    #
-    # # serialize weights to HDF5
-    # model.save_weights("model_weights.h5")
-    # print("Saved model to disk")
-    #
-    #
-    # save_training_validation_test_results()
 
-'''
 if __name__ == '__main__':
-    process_outputs(model="blah", history_dict={'loss': [0.3379512131214142, 0.16062788665294647],
- 'sparse_categorical_accuracy': [0.9043999910354614, 0.9524800181388855],
- 'val_loss': [0.18728218972682953, 0.17670848965644836],
- 'val_sparse_categorical_accuracy': [0.9452000260353088, 0.9470999836921692]}, results="blah", model_name="test", learning_rate=0.05, scheduler="Adam", dataset="MNIST", number_of_epochs=500)'''
-    # Model_Name = "Final_House_price_estimation- {}".format(int(time.time()))
-    # Model_Name_yml = "Final_House_price_estimation- {}.yaml".format(int(time.time()))
-    # #tensorboard = TensorBoard(log_dir= 'logs/{}'.format(Model_Name))
-    #
-    # #X_train , X_test , y_train , y_test , train_images, test_images, y_test_actual = Prepare_Final_Data("Houses Dataset/HousesInfo.txt")
-    # Dense_NN = SimpleDenseNet(X_train.shape[1])
-    # CNN = LeNet()
-    #
-    # Multi_Input = concatenate([Dense_NN.output, CNN.output])
-    # Final_Fully_Connected_Network = Dense(4, activation = 'relu')(Multi_Input)
-    # Final_Fully_Connected_Network = Dense(1)(Final_Fully_Connected_Network)
-    # model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
-    # model.compile(optimizer = 'adam', loss = 'mse')
-    # model.fit([X_train,train_images], y_train, validation_split = 0.15,
-    #         epochs = 50,
-    #         batch_size = 8,
-    #         callbacks= [tensorboard])
-    #
-    #
-    #
-    # preds = model.predict([X_test,test_images])
-    # error = preds.flatten() - y_test
-    # squared_error = error ** 2
-    # MSE = np.mean(squared_error)
-    #
-    # #train(Model_Name_yml)
-    #
-    # r2_score_test = r2_score(y_test,preds.flatten())
-    #
-    #
-    # # compute the difference between the *predicted* house prices and the
-    # # *actual* house prices, then compute the percentage difference and
-    # # the absolute percentage difference
-    # diff = preds.flatten() - y_test
-    # percentDiff = (diff / y_test) * 100
-    # absPercentDiff = np.abs(percentDiff)
-    #
-    # # compute the mean and standard deviation of the absolute percentage
-    # # difference
-    # mean = np.mean(absPercentDiff)
-    # std = np.std(absPercentDiff)
+    path_to_config='config.yaml'
+    config = initialize_hyper(path_to_config)
+    print(config)
+    if config is None:
+        print("error in initialize_hyper")
+        sys.exit(1)
+    GLOBALS.CONFIG=config
 
-    # # finally, show some statistics on our model
-    # locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-    # print("[INFO] mean: {:.2f}%, std: {:.2f}%".format(mean, std))
-    # print("MSE = ", MSE)
-    # print("R2_score = ", r2_score_test)
+    model, history, results = train()
+    # process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs):
+    process_outputs(model=model, history_dict=history.history, results=results, scheduler=config['LR_scheduler'], dataset=config['directory'], number_of_epochs=config['number_of_epochs'])

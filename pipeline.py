@@ -39,7 +39,6 @@ def initialize_hyper(path_to_config):
     with open(path_to_config, 'r') as stream:
         try:
             config = yaml.safe_load(stream)
-            print(config)
             return config
         except yaml.YAMLError as exc:
             print(exc)
@@ -112,7 +111,7 @@ def train(path_to_config='config.yaml'):
 
     #train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, \
         #test_images, test_stats, test_prices = return_splits( ... )
-    directories=['splitted_dataset/train_augmented','splitted_dataset/val','splitted_dataset/test'] #The augmented dataset is in directory train_augmented
+    directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','splitted_dataset_0.7_0.1_0.2/val','splitted_dataset_0.7_0.1_0.2/test'] #The augmented dataset is in directory train_augmented
     data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
 
     print('Train Images:',data_dict['train_images'].shape)
@@ -188,8 +187,6 @@ def plot(x, y, xlabel, ylabel, title, save=False, filename=None, ylim=(0,200)):
     if save:
         plt.savefig(filename)
 
-    plt.show()
-
 def save_dict_to_csv(dict, csv_file_path, fieldnames_header, start_row_num_from_1):
     # assumes a dictionary of lists like history.history
 
@@ -259,7 +256,11 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     model_name = model.name
     learning_rate = tf.keras.backend.eval(model.optimizer.lr)
 
-    output_folder_name = "output_folder_%s_%s_%s_%s_%s" % (model_name, learning_rate, scheduler, dataset, number_of_epochs)
+    try:
+        os.mkdir("Output_Files")
+    except:
+        pass
+    output_folder_name = "Output_Files/output_folder_%s_%s_%s_%s_%s" % (model_name, learning_rate, scheduler, dataset, number_of_epochs)
     output_dir = os.path.join(os.path.dirname(__file__), output_folder_name)
     model_weights_dir = os.path.join(output_dir, "model_weights")
     graphs_dir = os.path.join(output_dir, "graphs_and_message")
@@ -302,7 +303,6 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     personal_message=str(input('What makes this run different? \n'))
     r = open(path_to_config, 'r')
     config_lines = r.readlines()
-    print(config_lines)
     f = open(os.path.join(graphs_dir, 'information.txt'), "a")
     f.write(str(peak_loss))
     f.write("\n")
@@ -316,7 +316,6 @@ if __name__ == '__main__':
     path_to_config='config.yaml'
 
     config = initialize_hyper(path_to_config)
-    print(config)
     if config is None:
         print("error in initialize_hyper")
         sys.exit(1)

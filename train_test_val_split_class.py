@@ -108,7 +108,10 @@ class train_test_val_split_class:
             if entry.is_file() and (not entry.path.endswith(".txt")):
                 entry_string = os.path.basename(entry) #just the filename, not the full path
                 splitted = entry_string.split("_")
-                filenum = int(splitted[0]) #file number of current file
+                if splitted[0]=='.DS':
+                    continue
+                else:
+                    filenum = int(splitted[0]) #file number of current file
 
                 if filenum in train_house_numbers:
                     shutil.copy(entry.path,self.train_dir) #copy image to train_dir

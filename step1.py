@@ -197,7 +197,6 @@ def true_dataframe(directory_path):
 def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     new_df = true_dataframe(directory+'/'+tag+'_'+'HousesInfo.txt')
 
-    print(new_df.head())
     price_min=new_df['Price'].min()
     sqft_min=new_df['SqFt'].min()
     price_max=new_df['Price'].max()
@@ -265,7 +264,6 @@ def split_image_data(directory, tag='train'):
     # validation_images = np.copy(first_img)
     # test_images = np.copy(first_img)
 
-    print("Debug info (Sean)")
     # print(file_list)
     # print(directory)
 
@@ -285,7 +283,6 @@ def split_image_data(directory, tag='train'):
     images = np.array(images)
     # visualize different images in split dataset to ensure proper shape
     #display_image(images[20])
-    print(tag+" images shape:", images.shape)
     return images
 
 def return_splits(directories):

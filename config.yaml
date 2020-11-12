@@ -10,10 +10,11 @@ init_lr: 'None'
 momentum: 0.05
 weight_decay: 0.0001
 learning_rate: 0.1
+learning_rates: [0.05, 0.1, 0.125, 0.15, 0.2]
 beta: 0.8
 mini_batch_size: 10
 loss_function: 'mape'
-number_of_epochs: 30
+number_of_epochs: 3
 train_val_test_split:
   - 0.7
   - 0.15

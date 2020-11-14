@@ -125,6 +125,58 @@ def create_models():
             metrics=[tf.keras.metrics.MeanAbsolutePercentageError()])
     return model, optimizer
 
+def create_Dense_NN():
+    CNN_type = GLOBALS.CONFIG['CNN_model']
+    Dense_NN, _ = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'])
+    optimizer_functions={'Adam':keras.optimizers.Adam}
+    optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
+
+    model = Dense_NN
+
+    with suppress_stdout():
+        model.compile(optimizer=optimizer, loss = GLOBALS.CONFIG['loss_function'],
+            metrics=[tf.keras.metrics.MeanAbsolutePercentageError()])
+
+    return model
+
+def create_CNN():
+    CNN_type = GLOBALS.CONFIG['CNN_model']
+    _, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'])
+    optimizer_functions={'Adam':keras.optimizers.Adam}
+    optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
+
+    model = CNN
+
+    with suppress_stdout():
+        model.compile(optimizer=optimizer, loss = GLOBALS.CONFIG['loss_function'],
+            metrics=[tf.keras.metrics.MeanAbsolutePercentageError()])
+    return model
+
+def train_Dense_NN(model, data_dict):
+    '''Only trains the dense network
+    '''
+    history = model.fit(x=data_dict["train_stats"], y=data_dict['train_prices'], validation_data=(data_dict["validation_stats"], data_dict['validation_prices']),
+            epochs = GLOBALS.CONFIG['number_of_epochs'],
+            batch_size = GLOBALS.CONFIG['mini_batch_size'])
+
+    results = model.evaluate(data_dict['test_stats'], data_dict['test_prices'], batch_size=GLOBALS.CONFIG['mini_batch_size'])
+    evaluation_results = dict(zip(model.metrics_names, results))
+
+    return model, history, results
+
+def train_CNN(model, data_dict):
+    '''
+    Only trains the CNN
+    '''
+    history = model.fit(x=data_dict['train_images'], y=data_dict['train_prices'], validation_data=(data_dict['validation_images'], data_dict['validation_prices']),
+            epochs = GLOBALS.CONFIG['number_of_epochs'],
+            batch_size = GLOBALS.CONFIG['mini_batch_size'])
+
+    results = model.evaluate(data_dict['test_images'], data_dict['test_prices'], batch_size=GLOBALS.CONFIG['mini_batch_size'])
+    evaluation_results = dict(zip(model.metrics_names, results))
+
+    return model, history, results
+
 def train(data_dict, model, optimizer, path_to_config='config.yaml'):
     '''
     Inputs: The config.yaml file
@@ -325,17 +377,53 @@ def the_setup(path_to_config='config.yaml'):
     model, optimizer = create_models()
     return data_dict, model, optimizer
 
+def the_setup_without_models(path_to_config='config.yaml'):
+    GLOBALS.CONFIG = initialize_hyper(path_to_config)
+    if GLOBALS.CONFIG is None:
+        print("error in initialize_hyper")
+        sys.exit(1)
+    print("start initializing dataset")
+    initialize_datasets()
+    print("finished initializing dataset")
+    data_dict = create_data()
+    return data_dict
+
 if __name__ == '__main__':
-    data_dict, model, optimizer = the_setup()
-    # process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs):
-    for index,learning_rate in enumerate(GLOBALS.CONFIG['learning_rates']):
-        GLOBALS.CONFIG['learning_rate'] = learning_rate
-        model, optimizer = create_models()
-        model, history, results = train(data_dict, model, optimizer)
-        if index == 0:
-            message = ''
-            one_name = ''
-        else:
-            message = personal_message
-            one_name = one_name_differentiator
+    # set this to True to train models separately
+    train_dense_and_CNN_separately = False
+
+
+    if train_dense_and_CNN_separately:
+        data_dict = the_setup_without_models()
+
+        model = create_Dense_NN()
+        model, history, results = train_Dense_NN(model, data_dict)
+
+        message = "dense_nn"
+        one_name = "dense_nn"
+
         personal_message, one_name_differentiator = process_outputs(model=model, history_dict=history.history, results=results, scheduler=GLOBALS.CONFIG['LR_scheduler'], dataset=GLOBALS.CONFIG['directory'], number_of_epochs=GLOBALS.CONFIG['number_of_epochs'],one_name=one_name, message=message)
+
+        model_CNN = create_CNN()
+        model_CNN, history_CNN, results_CNN = train_CNN(model_CNN, data_dict)
+
+        message = "cnn"
+        one_name = "cnn"
+
+        personal_message, one_name_differentiator = process_outputs(model=model, history_dict=history.history, results=results, scheduler=GLOBALS.CONFIG['LR_scheduler'], dataset=GLOBALS.CONFIG['directory'], number_of_epochs=GLOBALS.CONFIG['number_of_epochs'],one_name=one_name, message=message)
+
+
+    else:
+        data_dict, model, optimizer = the_setup()
+        # process_outputs(model, history_dict, results, scheduler, dataset, number_of_epochs):
+        for index,learning_rate in enumerate(GLOBALS.CONFIG['learning_rates']):
+            GLOBALS.CONFIG['learning_rate'] = learning_rate
+            model, optimizer = create_models()
+            model, history, results = train(data_dict, model, optimizer)
+            if index == 0:
+                message = ''
+                one_name = ''
+            else:
+                message = personal_message
+                one_name = one_name_differentiator
+            personal_message, one_name_differentiator = process_outputs(model=model, history_dict=history.history, results=results, scheduler=GLOBALS.CONFIG['LR_scheduler'], dataset=GLOBALS.CONFIG['directory'], number_of_epochs=GLOBALS.CONFIG['number_of_epochs'],one_name=one_name, message=message)

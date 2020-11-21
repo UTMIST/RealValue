@@ -7,6 +7,7 @@ import yaml
 import csv
 import sys
 import os
+import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 import global_vars as GLOBALS
@@ -88,12 +89,14 @@ def initialize_datasets():
     return True
 
 def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','splitted_dataset_0.7_0.1_0.2/val','splitted_dataset_0.7_0.1_0.2/test'], import_mode = 'True'):
-    try:
-        os.mkdir('array_files')
-    except:
-        pass
+
 
     if GLOBALS.CONFIG['import_mode'] == 'False':
+        shutil.rmtree('array_files')
+        try:
+            os.mkdir('array_files')
+        except:
+            pass
         data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
         for key in data_dict:
             np.save(os.path.join('array_files',key),data_dict[key])

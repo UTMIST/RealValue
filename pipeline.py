@@ -87,20 +87,30 @@ def initialize_datasets():
 
     return True
 
-def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','splitted_dataset_0.7_0.1_0.2/val','splitted_dataset_0.7_0.1_0.2/test']):
-    data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
+def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','splitted_dataset_0.7_0.1_0.2/val','splitted_dataset_0.7_0.1_0.2/test'], import_mode = 'True'):
+    try:
+        os.mkdir('array_files')
+    except:
+        pass
+
+    if GLOBALS.CONFIG['import_mode'] == 'False':
+        data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
+        for key in data_dict:
+            np.save(os.path.join('array_files',key),data_dict[key])
+    else:
+        data_dict={}
+        key_vals = ['train_images','train_stats','train_prices','validation_images','validation_stats','validation_prices','test_images','test_stats','test_prices']
+        for key in key_vals:
+            data_dict[key] = np.load(os.path.join('array_files',key+'.npy'))
 
     print('Train Images:',data_dict['train_images'].shape)
     print('Train Stats:',data_dict['train_stats'].shape)
-    print('Train Min/max',data_dict['train_min_max'])
     print('Train Prices:',data_dict['train_prices'].shape)
     print('Validation Images:',data_dict['validation_images'].shape)
     print('Validation Stats:',data_dict['validation_stats'].shape)
     print('Validation Prices:',data_dict['validation_prices'].shape)
-    print('Validation Min/max',data_dict['validation_min_max'])
     print('Test Images:',data_dict['test_images'].shape)
     print('Test Validation:',data_dict['test_stats'].shape)
-    print('Test Min/Max',data_dict['test_min_max'])
     print('Test Prices:',data_dict['test_prices'].shape)
 
     print('Validation Stats Array:',data_dict['validation_stats'])
@@ -112,12 +122,12 @@ def create_models():
     Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'])
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(32, activation = 'relu')(Multi_Input)
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'sigmoid')(Final_Fully_Connected_Network)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(4, activation = 'relu')(Multi_Input)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'linear')(Final_Fully_Connected_Network)
 
     model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
 
-    optimizer_functions={'Adam':keras.optimizers.Adam}
+    optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
 
     with suppress_stdout():

@@ -203,8 +203,8 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     sqft_max=new_df['SqFt'].max()
     min_max_values={'price_min':price_min,'sqft_min':sqft_min,'price_max':price_max,'sqft_max':sqft_max}
 
-    continuous_feats=['SqFt','Price']
-    categorical_feats=['Bedrooms','Bathrooms']
+    continuous_feats=['Bedrooms','SqFt','Price']
+    categorical_feats=['Bathrooms']
     for i, feature in enumerate(continuous_feats):
         new_df[feature]=(new_df[feature]-new_df[feature].min())/(new_df[feature].max()-new_df[feature].min())
     cts_data=new_df[continuous_feats].values
@@ -306,7 +306,7 @@ def return_splits(directories):
     house_info_path = os.path.join(dataset_full_path,house_info)
     #Initialize OneHotEncoder and fit to full houseinfo.txt for categorical features
     df = true_dataframe(house_info_path)
-    categorical_feats=['Bedrooms','Bathrooms']
+    categorical_feats=['Bathrooms']
     oneh_encoder = OneHotEncoder()
     oneh_encoder.fit(df[categorical_feats])
     #Fetch stats from train,valid,test images
@@ -314,7 +314,7 @@ def return_splits(directories):
     validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder)
     test_stats, test_prices, test_min_max, train_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = oneh_encoder)
     #Create dict with all required information
-    main_dict={'train_images':train_images,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
+    main_dict={'train_images':train_images/255.0,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images/255.0,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images/255.0,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
     return main_dict
 
 '''

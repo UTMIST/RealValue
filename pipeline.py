@@ -25,7 +25,7 @@ from contextlib import contextmanager
 #from models.dense_models.simple_densenet import SimpleDenseNet
 
 # Set global seeds for more deterministic training
-SEED = 0
+SEED = 1
 
 tf.random.set_seed(SEED)
 os.environ['PYTHONHASHSEED']=str(SEED)
@@ -92,7 +92,10 @@ def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','spl
 
 
     if GLOBALS.CONFIG['import_mode'] == 'False':
-        shutil.rmtree('array_files')
+        try:
+            shutil.rmtree('array_files')
+        except:
+            pass
         try:
             os.mkdir('array_files')
         except:
@@ -121,17 +124,19 @@ def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','spl
     print('Test Validation:',data_dict['test_stats'].shape)
     print('Test Prices:',data_dict['test_prices'].shape)
 
+    GLOBALS.CONFIG['input_shape'] = data_dict['validation_stats'].shape[1]
     print('Validation Stats Array:',data_dict['validation_stats'])
     return data_dict
 
 def create_models():
 
     CNN_type = GLOBALS.CONFIG['CNN_model']
-    Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'])
+    Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(4, activation = 'relu')(Multi_Input)
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'linear')(Final_Fully_Connected_Network)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(8, activation = 'relu')(Multi_Input)
+    Final_Fully_Connected_Network = tf.keras.layers.BatchNormalization()(Final_Fully_Connected_Network)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'relu')(Final_Fully_Connected_Network)
 
     model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
 
@@ -145,7 +150,7 @@ def create_models():
 
 def create_Dense_NN():
     CNN_type = GLOBALS.CONFIG['CNN_model']
-    Dense_NN, _ = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'])
+    Dense_NN, _ = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
     optimizer_functions={'Adam':keras.optimizers.Adam}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
 
@@ -159,7 +164,7 @@ def create_Dense_NN():
 
 def create_CNN():
     CNN_type = GLOBALS.CONFIG['CNN_model']
-    _, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'])
+    _, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
     optimizer_functions={'Adam':keras.optimizers.Adam}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
 
@@ -230,7 +235,7 @@ def train(data_dict, model, optimizer, path_to_config='config.yaml'):
 
     results = model.evaluate([data_dict['test_stats'],data_dict['test_images']], data_dict['test_prices'], batch_size=GLOBALS.CONFIG['mini_batch_size'])
     evaluation_results = dict(zip(model.metrics_names, results))
-
+    print(results)
     return model, history, results
 
 def save_model(model, model_dir):

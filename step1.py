@@ -203,8 +203,8 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     sqft_max=new_df['SqFt'].max()
     min_max_values={'price_min':price_min,'sqft_min':sqft_min,'price_max':price_max,'sqft_max':sqft_max}
 
-    continuous_feats=['Bedrooms','SqFt','Price']
-    categorical_feats=['Bathrooms']
+    continuous_feats=['Bedrooms','Bathrooms','SqFt','Price']
+    #categorical_feats=['Bathrooms']
     for i, feature in enumerate(continuous_feats):
         new_df[feature]=(new_df[feature]-new_df[feature].min())/(new_df[feature].max()-new_df[feature].min())
     cts_data=new_df[continuous_feats].values
@@ -221,7 +221,7 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     print(cat_onehot1)
     '''
 
-    cat_onehot=oneh_encoder.transform(new_df[categorical_feats]).toarray()
+    #cat_onehot=oneh_encoder.transform(new_df[categorical_feats]).toarray()
     '''
     for i, feature in enumerate(categorical_feats):
         temp_column=pd.get_dummies(new_df[feature]).to_numpy()
@@ -230,7 +230,8 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
         else:
             cat_onehot=np.concatenate((cat_onehot,temp_column),axis=1)
     '''
-    final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
+    #final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
+    final_stats_array = cts_data
     #final_x_array is following [[one hot vec for beds, one hot vec for bathrooms, sqft as normalized quantity],(...)] #Note that each item in the list is a training example
     #final_price_array is following: [normalized price]
     final_x_array=final_stats_array[:,:-1]
@@ -306,9 +307,9 @@ def return_splits(directories):
     house_info_path = os.path.join(dataset_full_path,house_info)
     #Initialize OneHotEncoder and fit to full houseinfo.txt for categorical features
     df = true_dataframe(house_info_path)
-    categorical_feats=['Bathrooms']
+    categorical_feats=[]
     oneh_encoder = OneHotEncoder()
-    oneh_encoder.fit(df[categorical_feats])
+    #oneh_encoder.fit(df[categorical_feats])
     #Fetch stats from train,valid,test images
     train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder)
     validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder)

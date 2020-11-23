@@ -25,7 +25,7 @@ from contextlib import contextmanager
 #from models.dense_models.simple_densenet import SimpleDenseNet
 
 # Set global seeds for more deterministic training
-SEED = 1
+SEED = 2
 
 tf.random.set_seed(SEED)
 os.environ['PYTHONHASHSEED']=str(SEED)
@@ -105,7 +105,9 @@ def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','spl
             np.save(os.path.join('array_files',key),data_dict[key])
     else:
         data_dict={}
+        
         key_vals = ['train_images','train_stats','train_prices','validation_images','validation_stats','validation_prices','test_images','test_stats','test_prices', 'test_min_max', 'train_min_max', 'validation_min_max'] # <--- added 'test_min_max', 'train_min_max', 'val_min_max'
+
         try:
             for key in key_vals:
                 data_dict[key] = np.load(os.path.join('array_files',key+'.npy'))
@@ -134,13 +136,15 @@ def create_models():
     Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(8, activation = 'relu')(Multi_Input)
+    #Not updated from 63 commit
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(16, activation = 'relu')(Multi_Input)
     Final_Fully_Connected_Network = tf.keras.layers.BatchNormalization()(Final_Fully_Connected_Network)
+    #Final_Fully_Connected_Network = tf.keras.layers.Dense(8, activation = 'relu')(Final_Fully_Connected_Network)
     Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'relu')(Final_Fully_Connected_Network)
 
     model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
 
-    optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD}
+    optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD,'RMSProp':keras.optimizers.RMSprop}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
 
     with suppress_stdout():

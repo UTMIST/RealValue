@@ -22,7 +22,6 @@ train_val_test_ratio: [0.70,0.10,0.20]
 augmentation_multiplier: 2
 import_mode: 'True'
 
-
 # dense network (64 mape)
 # directory: 'raw_dataset'
 # CNN_model: 'RegNet'
@@ -48,3 +47,4 @@ import_mode: 'True'
 # train_val_test_ratio: [0.70,0.10,0.20]
 # augmentation_multiplier: 1
 # import_mode: 'False' #'True'
+

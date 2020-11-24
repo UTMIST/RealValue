@@ -142,8 +142,8 @@ def create_models():
 
     model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
 
-    optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD,'RMSProp':keras.optimizers.RMSprop}
-    optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
+    optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD,'RMSProp':keras.optimizers.RMSprop,'Adadelta':keras.optimizers.Adadelta}
+    optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr = GLOBALS.CONFIG['learning_rate'])
 
     with suppress_stdout():
         model.compile(optimizer=optimizer, loss = GLOBALS.CONFIG['loss_function'],
@@ -237,7 +237,7 @@ def train(data_dict, model, optimizer, path_to_config='config.yaml'):
 
     results = model.evaluate([data_dict['test_stats'],data_dict['test_images']], data_dict['test_prices'], batch_size=GLOBALS.CONFIG['mini_batch_size'])
     evaluation_results = dict(zip(model.metrics_names, results))
-    print(results)
+    print(results, 'Test Results')
     return model, history, results
 
 def save_model(model, model_dir):

@@ -416,6 +416,7 @@ def the_setup_without_models(path_to_config='config.yaml'):
 if __name__ == '__main__':
     # set this to True to train models separately
     train_dense_and_CNN_separately = False
+    # train_dense_and_CNN_separately = True
 
 
     if train_dense_and_CNN_separately:
@@ -428,14 +429,14 @@ if __name__ == '__main__':
         one_name = "dense_nn"
 
         personal_message, one_name_differentiator = process_outputs(model=model, history_dict=history.history, results=results, scheduler=GLOBALS.CONFIG['LR_scheduler'], dataset=GLOBALS.CONFIG['directory'], number_of_epochs=GLOBALS.CONFIG['number_of_epochs'],one_name=one_name, message=message)
-
-        model_CNN = create_CNN()
-        model_CNN, history_CNN, results_CNN = train_CNN(model_CNN, data_dict)
-
-        message = "cnn"
-        one_name = "cnn"
-
-        personal_message, one_name_differentiator = process_outputs(model=model, history_dict=history.history, results=results, scheduler=GLOBALS.CONFIG['LR_scheduler'], dataset=GLOBALS.CONFIG['directory'], number_of_epochs=GLOBALS.CONFIG['number_of_epochs'],one_name=one_name, message=message)
+        #
+        # model_CNN = create_CNN()
+        # model_CNN, history_CNN, results_CNN = train_CNN(model_CNN, data_dict)
+        #
+        # message = "cnn"
+        # one_name = "cnn"
+        #
+        # personal_message, one_name_differentiator = process_outputs(model=model, history_dict=history.history, results=results, scheduler=GLOBALS.CONFIG['LR_scheduler'], dataset=GLOBALS.CONFIG['directory'], number_of_epochs=GLOBALS.CONFIG['number_of_epochs'],one_name=one_name, message=message)
 
 
     else:

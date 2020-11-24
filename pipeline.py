@@ -105,10 +105,10 @@ def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','spl
             np.save(os.path.join('array_files',key),data_dict[key])
     else:
         data_dict={}
-        key_vals = ['train_images','train_stats','train_prices','validation_images','validation_stats','validation_prices','test_images','test_stats','test_prices', 'test_min_max', 'train_min_max', 'val_min_max'] # <--- added 'test_min_max', 'train_min_max', 'val_min_max'
+        key_vals = ['train_images','train_stats','train_prices','validation_images','validation_stats','validation_prices','test_images','test_stats','test_prices', 'test_min_max', 'train_min_max', 'validation_min_max'] # <--- added 'test_min_max', 'train_min_max', 'val_min_max'
         try:
             for key in key_vals:
-                data_dict[key] = np.load(os.path.join('array_files',key+'.npy'))
+                data_dict[key] = np.load(os.path.join('array_files',key+'.npy'),allow_pickle=True)
         except:
             print("Your array files folder doesn't exist, please set import_mode in config.yaml to be False.")
             print("Once it begins training, KeyBoard Interrupt and set import_mode to be True.")

@@ -25,8 +25,8 @@ For each of the above folder 4-to-1, and then appropriately put into train_image
 # IMAGE_HEIGHT = 32
 # IMAGE_WIDTH = 32
 
-IMAGE_HEIGHT = 32
-IMAGE_WIDTH = 32
+IMAGE_HEIGHT = 48
+IMAGE_WIDTH = 48
 #
 # IMAGE_HEIGHT = 720
 # IMAGE_WIDTH = 720

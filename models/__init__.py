@@ -4,14 +4,15 @@ from tensorflow.keras import layers
 
 from models.CNN_models.lenet import build_LeNet
 from models.CNN_models.MiniVGGNet import MiniVGGNetModel
+from models.CNN_models.RegNet import RegNet
 
-def get_network(CNN_name, dense_layers, CNN_input_shape) -> None:
+def get_network(CNN_name, dense_layers, CNN_input_shape, input_shape=23) -> None:
     #create dense network dynamically based on input
-    layer_list=[keras.Input(shape=(23,))]
+    layer_list=[keras.Input(shape=(input_shape,))]
     for i in range(len(dense_layers)):
         name = "layer" + str(i+1)
         layer_list+=[layers.Dense(dense_layers[i], activation="relu", name=name)] #final output layer, no activation for next layer
-
+    #layer_list+=[layers.Dense(1, activation="linear")]
     dense_model = keras.Sequential(layer_list)
     # print(dense_model.summary())
     #select the CNN network
@@ -25,6 +26,8 @@ def get_network(CNN_name, dense_layers, CNN_input_shape) -> None:
         CNN_model = build_VGG16(input_shape=CNN_input_shape)
     elif CNN_name == 'ResNet':
         CNN_model = ResNet18()
+    elif CNN_name == 'RegNet':
+        CNN_model = RegNet(input_shape=CNN_input_shape)
     else:
         CNN_model = None
     print('True')

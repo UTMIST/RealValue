@@ -1,17 +1,17 @@
 directory: 'raw_dataset'
 CNN_model: 'RegNet'
 dense_model:
-  - 32
-  - 32
+  - 24
+  - 24
 optimizer: 'Adam'
 LR_scheduler: 'None'
 init_lr: 'None'
-momentum: 0.05 # 0.05
-weight_decay: 0.01 # 0.001 -> 0.01 
-learning_rate: 0.05 # 0.1 -> 0.05 
-learning_rates: [0.002] # decrease learn rate to 0.002
-beta: 0.7
-mini_batch_size: 32
+momentum: 0.05 
+weight_decay: 0.1
+learning_rate: 0.1 
+learning_rates: [0.002] 
+beta: 0.6
+mini_batch_size: 24
 #loss_function: "mean_absolute_percentage_error"
 loss_function: "huber_loss"
 number_of_epochs: 200
@@ -58,3 +58,23 @@ import_mode: 'True'
 #weight_decay: 0.01 # 0.001 -> 0.01 
 #learning_rate: 0.05 # 0.1 -> 0.05 
 #learning_rates: [0.002] # decrease learn rate to 0.001
+#Trail 3 - new model
+# weight_decay: 0.001 # 0.001 -> 0.01 
+# learning_rate: 0.03 # 0.1 -> 0.05 
+# learning_rates: [0.003] # decrease learn rate to 0.002
+# beta: 0.7 # lower this val hs
+# trail 3 - 64 percent
+ #directory: 'raw_dataset'
+ #CNN_model: 'RegNet'
+ #dense_model:
+  #- 24
+  #- 24
+ #optimizer: 'Adam'
+ #LR_scheduler: 'None'
+ #init_lr: 'None'
+#momentum: 0.05 
+#weight_decay: 0.1
+#learning_rate: 0.1 
+#learning_rates: [0.002] 
+#beta: 0.6
+#mini_batch_size: 24

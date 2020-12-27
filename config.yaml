@@ -8,12 +8,12 @@ LR_scheduler: 'None'
 init_lr: 'None'
 momentum: 0.05
 weight_decay: 0.001
-learning_rate: 0.1
-learning_rates: [0.005,0.002,0.003,0.004,0.005]
+learning_rate: 0.005
+learning_rates: [0.005]
 beta: 0.7
 mini_batch_size: 32
-#loss_function: "mean_absolute_percentage_error"
-loss_function: "huber_loss"
+loss_function: "mean_absolute_percentage_error"
+#loss_function: "huber_loss"
 number_of_epochs: 200
 image_height: 150
 image_width: 150
@@ -47,4 +47,3 @@ import_mode: 'True'
 # train_val_test_ratio: [0.70,0.10,0.20]
 # augmentation_multiplier: 1
 # import_mode: 'False' #'True'
-

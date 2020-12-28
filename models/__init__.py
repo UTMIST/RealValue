@@ -5,7 +5,6 @@ from tensorflow.keras import layers
 from models.CNN_models.lenet import build_LeNet
 from models.CNN_models.MiniVGGNet import MiniVGGNetModel
 from models.CNN_models.RegNet import RegNet
-from models.CNN_models.VGG16 import build_VGG16
 
 def get_network(CNN_name, dense_layers, CNN_input_shape, input_shape=23) -> None:
     #create dense network dynamically based on input

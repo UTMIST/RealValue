@@ -135,10 +135,10 @@ def create_models():
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
     #Not updated from 63 commit
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(4, activation = 'relu')(Multi_Input)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(16, activation = 'relu')(Multi_Input)
     Final_Fully_Connected_Network = tf.keras.layers.BatchNormalization()(Final_Fully_Connected_Network)
     #Final_Fully_Connected_Network = tf.keras.layers.Dense(8, activation = 'relu')(Final_Fully_Connected_Network)
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'linear')(Final_Fully_Connected_Network)
+    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'relu')(Final_Fully_Connected_Network)
 
     model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
 

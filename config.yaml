@@ -1,5 +1,5 @@
 directory: 'raw_dataset'
-CNN_model: 'VGG16'
+CNN_model: 'RegNet'
 dense_model:
   - 32
   - 32
@@ -8,8 +8,8 @@ LR_scheduler: 'None'
 init_lr: 'None'
 momentum: 0.05
 weight_decay: 0.001
-learning_rate: 0.1
-learning_rates: [0.02]
+learning_rate: 0.005
+learning_rates: [0.005]
 beta: 0.7
 mini_batch_size: 32
 loss_function: "mean_absolute_percentage_error"
@@ -17,17 +17,17 @@ loss_function: "mean_absolute_percentage_error"
 number_of_epochs: 200
 image_height: 150
 image_width: 150
-CNN_input_shape: [96, 96, 3]
+CNN_input_shape: [64, 64, 3]
 train_val_test_ratio: [0.70,0.10,0.20]
 augmentation_multiplier: 2
-import_mode: 'True'
+import_mode: 'True
 
 # dense network (64 mape)
 # directory: 'raw_dataset'
 # CNN_model: 'RegNet'
 # dense_model:
 #   - 32
-#   - 32
+#   - 3
 #   - 1
 # optimizer: 'Adam'
 # LR_scheduler: 'None'
@@ -47,3 +47,37 @@ import_mode: 'True'
 # train_val_test_ratio: [0.70,0.10,0.20]
 # augmentation_multiplier: 1
 # import_mode: 'False' #'True'
+
+# Trail 1
+# momentum: 0.05 # 0.05
+# weight_decay: 0.01 # 0.001 -> 0.01
+#learning_rate: 0.05 # 0.1 -> 0.05 
+# learning_rates: [0.001] # decrease learn rate to 0.001
+#Trail 2 - 67%
+#momentum: 0.05 # 0.05
+#weight_decay: 0.01 # 0.001 -> 0.01 
+#learning_rate: 0.05 # 0.1 -> 0.05 
+#learning_rates: [0.002] # decrease learn rate to 0.001
+#Trail 3 - new model
+# weight_decay: 0.001 # 0.001 -> 0.01 
+# learning_rate: 0.03 # 0.1 -> 0.05 
+# learning_rates: [0.003] # decrease learn rate to 0.002
+# beta: 0.7 # lower this val hs
+
+
+# trail 3 - 64 percent
+ #directory: 'raw_dataset'
+ #CNN_model: 'RegNet'
+ #dense_model:
+  #- 24
+  #- 24
+ #optimizer: 'Adam'
+ #LR_scheduler: 'None'
+ #init_lr: 'None'
+#momentum: 0.05 
+#weight_decay: 0.1
+#learning_rate: 0.1 
+#learning_rates: [0.002] 
+#beta: 0.6
+#mini_batch_size: 24
+

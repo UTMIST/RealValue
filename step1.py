@@ -1,4 +1,4 @@
-import cv2
+from cv2 import cv2
 import os
 import matplotlib.pyplot as plt
 from collections import defaultdict

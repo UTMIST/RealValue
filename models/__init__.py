@@ -6,6 +6,13 @@ from models.CNN_models.lenet import build_LeNet
 from models.CNN_models.MiniVGGNet import MiniVGGNetModel
 from models.CNN_models.RegNet import RegNet
 
+def create_concat_network(Multi_Input):
+    Final_Fully_Connected_Network = layers.Dense(16, activation = 'relu')(Multi_Input)
+    Final_Fully_Connected_Network = layers.BatchNormalization()(Final_Fully_Connected_Network)
+    #Final_Fully_Connected_Network = layers.Dense(16, activation = 'relu')(Final_Fully_Connected_Network)
+    Final_Fully_Connected_Network = layers.Dense(1, activation = 'relu')(Final_Fully_Connected_Network)
+    return Final_Fully_Connected_Network
+
 def get_network(CNN_name, dense_layers, CNN_input_shape, input_shape=23) -> None:
     #create dense network dynamically based on input
     layer_list=[keras.Input(shape=(input_shape,))]

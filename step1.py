@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import global_vars as GLOBALS
 from sklearn.preprocessing import OneHotEncoder
+import yaml
 
 '''
 How things were:
@@ -25,8 +26,22 @@ For each of the above folder 4-to-1, and then appropriately put into train_image
 # IMAGE_HEIGHT = 32
 # IMAGE_WIDTH = 32
 
-IMAGE_HEIGHT = 32
-IMAGE_WIDTH = 32
+def initialize_hyper(path_to_config):
+    '''
+    Reads config.yaml to set hyperparameters
+    '''
+    with open(path_to_config, 'r') as stream:
+        try:
+            GLOBALS.CONFIG = yaml.safe_load(stream)
+            return GLOBALS.CONFIG
+        except yaml.YAMLError as exc:
+            print(exc)
+            return None
+
+initialize_hyper('config.yaml')
+
+IMAGE_HEIGHT = GLOBALS.CONFIG['CNN_input_shape'][0]//2
+IMAGE_WIDTH = GLOBALS.CONFIG['CNN_input_shape'][0]//2
 #
 # IMAGE_HEIGHT = 720
 # IMAGE_WIDTH = 720

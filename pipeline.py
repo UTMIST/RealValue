@@ -16,7 +16,7 @@ import numpy as np
 import random
 # from models import get_network
 import models
-from models import get_network
+from models import get_network, create_concat_network
 from split_and_augment_dataset import split_and_augment_train_dataset
 from contextlib import contextmanager
 
@@ -135,12 +135,7 @@ def create_models():
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
     #Not updated from 63 commit
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(16, activation = 'relu')(Multi_Input)
-    Final_Fully_Connected_Network = tf.keras.layers.BatchNormalization()(Final_Fully_Connected_Network)
-    #Final_Fully_Connected_Network = tf.keras.layers.Dense(8, activation = 'relu')(Final_Fully_Connected_Network)
-    Final_Fully_Connected_Network = tf.keras.layers.Dense(1, activation = 'relu')(Final_Fully_Connected_Network)
-
-    model = Model(inputs = [Dense_NN.input , CNN.input], outputs = Final_Fully_Connected_Network)
+    model = Model(inputs = [Dense_NN.input , CNN.input], outputs = create_concat_network(Multi_Input))
 
     optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD,'RMSProp':keras.optimizers.RMSprop,'Adadelta':keras.optimizers.Adadelta}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr = GLOBALS.CONFIG['learning_rate'])

@@ -130,61 +130,7 @@ def compile_full_image(folder_path, output_dir):
     merged_images=merge_part_images(resized_images_dict)
     write_files_to_folder(merged_images, output_dir)
     return True
-'''
-#train_stats, validation_stats, test_stats
-def split_stats_data(directory, splitting_parameter):
-    df = pd.read_fwf(directory+'/HousesInfo.txt')
-    new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','ZipCode','Price'])
 
-    def remove_values_from_list(the_list, val):
-       return [value for value in the_list if value != val]
-
-    for index,row in df.iterrows():
-        final=row.tolist()[0].split()
-        final = list(map(float, final))
-        new_df.loc[index]=final
-
-    new_df = new_df.drop('ZipCode', 1)
-
-    print(new_df.head())
-    price_min=new_df['Price'].min()
-    sqft_min=new_df['SqFt'].min()
-    price_max=new_df['Price'].max()
-    sqft_max=new_df['SqFt'].max()
-    min_max_values={'price_min':price_min,'sqft_min':sqft_min,'price_max':price_max,'sqft_max':sqft_max}
-
-    continuous_feats=['SqFt','Price']
-    categorical_feats=['Bedrooms','Bathrooms']
-    for i, feature in enumerate(continuous_feats):
-        new_df[feature]=(new_df[feature]-new_df[feature].min())/(new_df[feature].max()-new_df[feature].min())
-    cts_data=new_df[continuous_feats].values
-
-    for i, feature in enumerate(categorical_feats):
-        temp_column=pd.get_dummies(new_df[feature]).to_numpy()
-        if i==0:
-            cat_onehot=temp_column
-        else:
-            cat_onehot=np.concatenate((cat_onehot,temp_column),axis=1)
-    final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
-    #final_x_array is following [[one hot vec for beds, one hot vec for bathrooms, sqft as normalized quantity],(...)] #Note that each item in the list is a training example
-    #final_price_array is following: [normalized price]
-    final_x_array=final_stats_array[:,:-1]
-    final_price_array= final_stats_array[:,-1]
-    number_of_elements=len(final_x_array)
-    num_train = int(number_of_elements * splitting_parameter[0])
-    num_validate = int(number_of_elements * splitting_parameter[1])
-    num_test = number_of_elements - num_train - num_validate
-
-    train_stats=final_x_array[:num_train]
-    validation_stats=final_x_array[num_train:num_train+num_validate]
-    test_stats=final_x_array[num_train+num_validate:]
-
-    train_prices=final_price_array[:num_train]
-    validation_prices=final_price_array[num_train:num_train+num_validate]
-    test_prices=final_price_array[num_train+num_validate:]
-
-    return train_stats,validation_stats,test_stats,train_prices,validation_prices,test_prices,min_max_values
-'''
 def true_dataframe(directory_path):
     df = pd.read_fwf(directory_path, header=None)
     new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','ZipCode','Price'])
@@ -198,13 +144,7 @@ def true_dataframe(directory_path):
         except:
             final=(str(row.tolist()[0])+' '+row.tolist()[1]).split()
         final = list(map(float,final))
-        '''except:
-            final=row.tolist().split()
-            print(final)
-            print(row.tolist())
-            print(row.tolist()[0].split())
-            print(final, index)
-            a=b'''
+
         new_df.loc[index]=final
     new_df = new_df.drop('ZipCode', 1)
     return new_df
@@ -218,33 +158,16 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     sqft_max=new_df['SqFt'].max()
     min_max_values={'price_min':price_min,'sqft_min':sqft_min,'price_max':price_max,'sqft_max':sqft_max}
 
-    continuous_feats=['Bedrooms','Bathrooms','SqFt','Price']
+    x_continuous_feats=['Bedrooms','Bathrooms','SqFt']
+    y_continuous_feats=['Price']
+    continuous_feats = x_continuous_feats + y_continuous_feats
     #categorical_feats=['Bathrooms']
-    for i, feature in enumerate(continuous_feats):
-        new_df[feature]=new_df[feature]/new_df[feature].max()
+    for i, feature in enumerate(x_continuous_feats):
+        new_df[feature]=(new_df[feature]-new_df[feature].min())/(new_df[feature].max()-new_df[feature].min())
+    for i, feature in enumerate(y_continuous_feats):
+        new_df[feature]=(new_df[feature])/(new_df[feature].max())
     cts_data=new_df[continuous_feats].values
 
-    '''
-    oneh_encoder = OneHotEncoder()
-    label_temp=np.array(labels).reshape(-1,1)
-    oneh_encoder.fit(np.array(full_loader.dataset.targets).reshape(-1,1))
-    labels=torch.from_numpy(oneh_encoder.transform(label_temp).toarray()).float()
-
-    data_temp=new_df[categorical_feats]
-    oneh_encoder.fit(data_temp)
-    cat_onehot1=oneh_encoder.transform(data_temp).toarray()
-    print(cat_onehot1)
-    '''
-
-    #cat_onehot=oneh_encoder.transform(new_df[categorical_feats]).toarray()
-    '''
-    for i, feature in enumerate(categorical_feats):
-        temp_column=pd.get_dummies(new_df[feature]).to_numpy()
-        if i==0:
-            cat_onehot=temp_column
-        else:
-            cat_onehot=np.concatenate((cat_onehot,temp_column),axis=1)
-    '''
     #final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
     final_stats_array = cts_data
     #final_x_array is following [[one hot vec for beds, one hot vec for bathrooms, sqft as normalized quantity],(...)] #Note that each item in the list is a training example
@@ -272,21 +195,6 @@ def split_image_data(directory, tag='train'):
     test_images = np.zeros(shape=(num_test, rows, cols, channels))
     '''
     images = []
-    # first_img_file = file_list[0]
-    # first_img_file_path = os.path.join(directory, first_img_file)
-    # first_img = cv2.imread(first_img_file_path)
-    # train_images = np.copy(first_img)
-    # #np.zeros(first_img.shape, first_img.dtype)
-    # validation_images = np.copy(first_img)
-    # test_images = np.copy(first_img)
-
-    # print(file_list)
-    # print(directory)
-
-    # print(first_img_file)
-    # print(first_img)
-    # print(first_img.shape)
-    # print(first_img.dtype)
 
     #iterate through all images in the folder
     img_counter = 0
@@ -332,32 +240,6 @@ def return_splits(directories):
     #Create dict with all required information
     main_dict={'train_images':train_images/255.0,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images/255.0,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images/255.0,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
     return main_dict
-
-'''
-Inputs: main_dataset_path, train/test and validation splits.
-Outputs: train_images, train_stats, train_prices, validation_images, validation_stats, validation_prices, test_images, test_stats, test_prices.
-
-The goal of this function is to return all inputs and outputs required for training.
-The process occurs in the following steps:
-1. For the dataset in main_dataset_path, convert the 4 images corresponding to 1 house into 1 image per house
-- Bedroom top left, bathroom top right, kitchen bottom left, frontal top right.
-- Write these images to main_dataset_path/final
-2. Use the "main_dataset/final" folder, the train_test splits and main_dataset/HousesInfo.txt to split the dataset appropriately into training, validation and test sections
--train_images is a 4D numpy array
-    -1st dimension is number of loadImages
-    -2nd and 3rd dims are height and width (535 * 0.7, 64, 64, 3)
-    -4th dim is channels
--train_stats is a (535 * 0.7, 3)
--train_prices (535 * 0.7, 1)
--normalize using standard normalization formula
-    -for train_stats, one hot encode the number of bedrooms, Bathrooms, normalize squarefootage
-    -ex. 4 different samples, with 0, 1, 2, 3 bedrooms
-
-
-3. Return all of the above required Outputs within a Dictionary.
-- aka {"train_images":train_images, "train_stats":train_stats}
-'''
-
 
 if __name__ == "__main__":
 

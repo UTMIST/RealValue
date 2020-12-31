@@ -221,7 +221,7 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None):
     continuous_feats=['Bedrooms','Bathrooms','SqFt','Price']
     #categorical_feats=['Bathrooms']
     for i, feature in enumerate(continuous_feats):
-        new_df[feature]=(new_df[feature]-new_df[feature].min())/(new_df[feature].max()-new_df[feature].min())
+        new_df[feature]=new_df[feature]/new_df[feature].max()
     cts_data=new_df[continuous_feats].values
 
     '''

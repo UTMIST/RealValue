@@ -149,23 +149,46 @@ def true_dataframe(directory_path):
     new_df = new_df.drop('ZipCode', 1)
     return new_df
 
-def split_stats_data(directory, tag = 'train', oneh_encoder = None):
-    new_df = true_dataframe(directory+'/'+tag+'_'+'HousesInfo.txt')
+def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None,max_vals=None):
+    if tag=='':
+        new_df = true_dataframe('raw_dataset'+os.sep+'HousesInfo.txt')
+    else:
+        new_df = true_dataframe(directory+'/'+tag+'_'+'HousesInfo.txt')
 
     price_min=new_df['Price'].min()
     sqft_min=new_df['SqFt'].min()
+    bedroom_min=new_df['Bedrooms'].min()
+    bathroom_min=new_df['Bathrooms'].min()
     price_max=new_df['Price'].max()
     sqft_max=new_df['SqFt'].max()
-    min_max_values={'price_min':price_min,'sqft_min':sqft_min,'price_max':price_max,'sqft_max':sqft_max}
+    bedroom_max=new_df['Bedrooms'].max()
+    bathroom_max=new_df['Bathrooms'].max()
 
+    if tag!='':
+        min_max_values={'price_min':price_min,'sqft_min':sqft_min,'bedroom_min':bedroom_min,'bathroom_min':bathroom_min,
+                        'price_max':price_max,'sqft_max':sqft_max,'bedroom_max':bedroom_max,'bathroom_max':bathroom_max}
+    else:
+        min_max_values=[[bedroom_min,bathroom_min,sqft_min,price_min],
+                        [bedroom_max,bathroom_max,sqft_max,price_max]]
+        print(min_max_values)
     x_continuous_feats=['Bedrooms','Bathrooms','SqFt']
     y_continuous_feats=['Price']
     continuous_feats = x_continuous_feats + y_continuous_feats
     #categorical_feats=['Bathrooms']
     for i, feature in enumerate(x_continuous_feats):
-        new_df[feature]=(new_df[feature]-new_df[feature].min())/(new_df[feature].max()-new_df[feature].min())
+        if max_vals == None:
+            min_val = new_df[feature].min()
+            max_val = new_df[feature].max()
+        else:
+            min_val = min_vals[i]
+            max_val = max_vals[i]
+        new_df[feature]=(new_df[feature]-min_val)/(max_val-min_val)
     for i, feature in enumerate(y_continuous_feats):
-        new_df[feature]=(new_df[feature])/(new_df[feature].max())
+        if max_vals == None:
+            max_val = new_df[feature].max()
+        else:
+            max_val = max_vals[3]
+        new_df[feature]=(new_df[feature])/(max_val)
     cts_data=new_df[continuous_feats].values
 
     #final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
@@ -234,9 +257,10 @@ def return_splits(directories):
     oneh_encoder = OneHotEncoder()
     #oneh_encoder.fit(df[categorical_feats])
     #Fetch stats from train,valid,test images
-    train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder)
-    validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder)
-    test_stats, test_prices, test_min_max, train_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = oneh_encoder)
+    _,_,min_max,_ = split_stats_data(train_directory, tag='',oneh_encoder = oneh_encoder)
+    train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
+    validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
+    test_stats, test_prices, test_min_max, test_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
     #Create dict with all required information
     main_dict={'train_images':train_images/255.0,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images/255.0,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images/255.0,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
     return main_dict

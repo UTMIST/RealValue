@@ -244,15 +244,19 @@ def save_model(model, model_dir):
         return False
     return True
 
-def plot(x, y, xlabel, ylabel, title, save=False, filename=None, ylim=(0,200)):
-    plt.plot(x, y)
+def plot(x, y, xlabel, ylabel, title, save=False, filename=None, ylim=(0,100),optional_y=None):
+    plt.plot(x, y, label='Train Results (Least = {}, Epoch = {})'.format(round(int(min(y)),2),np.argmin(np.array(y))+1))
+    if optional_y!=None:
+        plt.plot(x,optional_y['Validation Results'],label='Val. Results (Least = {}, Epoch = {})'.format(round(int(min(optional_y['Validation Results'])),2),np.argmin(np.array(optional_y['Validation Results']))+1))
+    plt.legend(fontsize=8)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
     plt.ylim(ylim)
-
     if save:
         plt.savefig(filename)
+    plt.clf()
+    return True
 
 def save_dict_to_csv(dict, csv_file_path, fieldnames_header, start_row_num_from_1):
     # assumes a dictionary of lists like history.history
@@ -348,16 +352,17 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     # from history dict (contains lists of equal length for each metric over
     # all epoch_results)
     training_csv_header = ["epoch"] + list(history_dict.keys())
-
     save_dict_to_csv(dict=history_dict, csv_file_path=os.path.join(stats_dir, 'training_history.csv'), fieldnames_header=training_csv_header, start_row_num_from_1=True)
 
     # # Create graphs for accuracy and mean average percentage error using matplotlib
     training_results = convert_csv_to_dict(os.path.join(stats_dir, 'training_history.csv'))
     epoch_data = np.array(training_results["epoch"]).astype(np.float)
     loss_data = np.array(training_results["loss"]).astype(np.float)
+    val_loss_data = np.array(training_results['val_loss']).astype(np.float)
     mean_absolute_percentage_error_data = np.array(training_results["mean_absolute_percentage_error"]).astype(np.float)
-    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(graphs_dir, "loss.png"))
-    plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(graphs_dir, "mean_absolute_percentage_error.png"))
+    val_mean_absolute_percentage_error_data = np.array(training_results['val_mean_absolute_percentage_error']).astype(np.float)
+    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(graphs_dir, "loss.png"),optional_y={'Validation Results':val_loss_data})
+    #plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(graphs_dir, "mean_absolute_percentage_error.png"),optional_y={'Validation Results':val_mean_absolute_percentage_error_data})
     # plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
     plt.clf()
     # plot(training_results["epoch"], training_results["loss"], xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))

@@ -339,6 +339,7 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     graphs_dir = os.path.join(output_dir, "graphs_and_message")
     stats_dir = os.path.join(output_dir, "stats")
     results_dir = os.path.join(output_dir, "results_files")
+    code_dir = os.path.join(output_dir, 'code_files')
 
     # Create output directories storing all results and model weights
     if not os.path.exists(os.path.join(os.path.dirname(__file__), output_dir)):
@@ -347,6 +348,7 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
         os.makedirs(graphs_dir)
         os.makedirs(stats_dir)
         os.makedirs(results_dir)
+        os.makedirs(code_dir)
 
     # Save training history (loss, sparse_categorical_accuracy, val_loss, etc)
     # from history dict (contains lists of equal length for each metric over
@@ -364,6 +366,8 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(graphs_dir, "loss.png"),optional_y={'Validation Results':val_loss_data})
     #plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(graphs_dir, "mean_absolute_percentage_error.png"),optional_y={'Validation Results':val_mean_absolute_percentage_error_data})
     # plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
+    shutil.copy('models'+os.sep+'CNN_models'+os.sep+'RegNet.py',code_dir+os.sep+'RegNet.py')
+    shutil.copy('models'+os.sep+'__init__.py',code_dir+os.sep+'dense_concatenation.py')
     plt.clf()
     # plot(training_results["epoch"], training_results["loss"], xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
 

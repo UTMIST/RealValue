@@ -7,7 +7,7 @@ optimizer: 'Adam'
 LR_scheduler: 'None'
 init_lr: 'None'
 momentum: 0.1
-weight_decay: 0.000005
+weight_decay: 0.1
 learning_rate: 0.001
 learning_rates: [0.001]
 beta: 0.7

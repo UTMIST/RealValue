@@ -244,15 +244,19 @@ def save_model(model, model_dir):
         return False
     return True
 
-def plot(x, y, xlabel, ylabel, title, save=False, filename=None, ylim=(0,200)):
-    plt.plot(x, y)
+def plot(x, y, xlabel, ylabel, title, save=False, filename=None, ylim=(0,100),optional_y=None):
+    plt.plot(x, y, label='Train Results (Least = {}, Epoch = {})'.format(round(int(min(y)),2),np.argmin(np.array(y))+1))
+    if optional_y!=None:
+        plt.plot(x,optional_y['Validation Results'],label='Val. Results (Least = {}, Epoch = {})'.format(round(int(min(optional_y['Validation Results'])),2),np.argmin(np.array(optional_y['Validation Results']))+1))
+    plt.legend(fontsize=8)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
     plt.ylim(ylim)
-
     if save:
         plt.savefig(filename)
+    plt.clf()
+    return True
 
 def save_dict_to_csv(dict, csv_file_path, fieldnames_header, start_row_num_from_1):
     # assumes a dictionary of lists like history.history
@@ -335,6 +339,7 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     graphs_dir = os.path.join(output_dir, "graphs_and_message")
     stats_dir = os.path.join(output_dir, "stats")
     results_dir = os.path.join(output_dir, "results_files")
+    code_dir = os.path.join(output_dir, 'code_files')
 
     # Create output directories storing all results and model weights
     if not os.path.exists(os.path.join(os.path.dirname(__file__), output_dir)):
@@ -343,22 +348,26 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
         os.makedirs(graphs_dir)
         os.makedirs(stats_dir)
         os.makedirs(results_dir)
+        os.makedirs(code_dir)
 
     # Save training history (loss, sparse_categorical_accuracy, val_loss, etc)
     # from history dict (contains lists of equal length for each metric over
     # all epoch_results)
     training_csv_header = ["epoch"] + list(history_dict.keys())
-
     save_dict_to_csv(dict=history_dict, csv_file_path=os.path.join(stats_dir, 'training_history.csv'), fieldnames_header=training_csv_header, start_row_num_from_1=True)
 
     # # Create graphs for accuracy and mean average percentage error using matplotlib
     training_results = convert_csv_to_dict(os.path.join(stats_dir, 'training_history.csv'))
     epoch_data = np.array(training_results["epoch"]).astype(np.float)
     loss_data = np.array(training_results["loss"]).astype(np.float)
+    val_loss_data = np.array(training_results['val_loss']).astype(np.float)
     mean_absolute_percentage_error_data = np.array(training_results["mean_absolute_percentage_error"]).astype(np.float)
-    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(graphs_dir, "loss.png"))
-    plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(graphs_dir, "mean_absolute_percentage_error.png"))
+    val_mean_absolute_percentage_error_data = np.array(training_results['val_mean_absolute_percentage_error']).astype(np.float)
+    plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(graphs_dir, "loss.png"),optional_y={'Validation Results':val_loss_data})
+    #plot(epoch_data, mean_absolute_percentage_error_data, xlabel="Epochs", ylabel="mean_absolute_percentage_error", title="mean_absolute_percentage_error vs Epochs", save=True, filename=os.path.join(graphs_dir, "mean_absolute_percentage_error.png"),optional_y={'Validation Results':val_mean_absolute_percentage_error_data})
     # plot(epoch_data, loss_data, xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
+    shutil.copy('models'+os.sep+'CNN_models'+os.sep+'RegNet.py',code_dir+os.sep+'RegNet.py')
+    shutil.copy('models'+os.sep+'__init__.py',code_dir+os.sep+'dense_concatenation.py')
     plt.clf()
     # plot(training_results["epoch"], training_results["loss"], xlabel="Epochs", ylabel="Loss", title="Loss vs Epochs", save=True, filename=os.path.join(stats_dir, "loss.png"))
 

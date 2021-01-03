@@ -20,4 +20,4 @@ image_width: 150
 CNN_input_shape: [64, 64, 3]
 train_val_test_ratio: [0.70,0.10,0.20]
 augmentation_multiplier: 1
-import_mode: 'False'
+import_mode: 'True'

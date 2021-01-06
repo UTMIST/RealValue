@@ -7,6 +7,7 @@ import pandas as pd
 import global_vars as GLOBALS
 from sklearn.preprocessing import OneHotEncoder
 import yaml
+import platform
 
 '''
 How things were:
@@ -96,10 +97,16 @@ def merge_part_images(raw_img_dict):
     for file_name, img_list in raw_img_dict.items():
         merged_image = np.zeros((MERGED_IMAGE_HEIGHT, MERGED_IMAGE_WIDTH, 3), np.uint8)#img_list[0].dtype)
 
-        merged_image[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[0]
-        merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[1]
-        merged_image[0:IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[2]
-        merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[3]
+        if platform.system()=='Windows':
+            merged_image[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[0]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[1]
+            merged_image[0:IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[2]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[3]
+        else:
+            merged_image[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[2]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[3]
+            merged_image[0:IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[0]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[1]
 
         output_dict[file_name] = merged_image
 

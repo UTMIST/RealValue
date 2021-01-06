@@ -1,7 +1,7 @@
 # RealValue
 Project in progress. Check back later for further updates on progress!
 
-Current Best:
+Current Best: 38.3%
 
 Arsh: \
 Matthew: \

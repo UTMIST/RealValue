@@ -1,0 +1,18 @@
+Main level	Living room
+4.88 m x 3.35 m
+Dining room
+4.17 m x 3.02 m
+Kitchen
+4.54 m x 4.27 m
+Second level	Primary Bedroom
+4.37 m x 3.15 m
+Bedroom 2
+3.81 m x 2.64 m
+Bedroom 3
+3.46 m x 2.64 m
+Basement	Bedroom
+4.33 m x 3.32 m
+Kitchen
+4.37 m x 2.44 m
+Laundry room
+4.24 m x 4.11 m

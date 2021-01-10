@@ -14,10 +14,10 @@ beta: 0.7
 mini_batch_size: 8
 loss_function: "mean_absolute_percentage_error"
 #loss_function: "huber_loss"
-number_of_epochs: 100
+number_of_epochs: 50
 image_height: 150
 image_width: 150
 CNN_input_shape: [64, 64, 3]
-train_val_test_ratio: [0.70,0.10,0.20]
+train_val_test_ratio: [0.84,0.01,0.15]
 augmentation_multiplier: 1
 import_mode: 'True'

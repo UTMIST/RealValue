@@ -385,7 +385,7 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     r = open(path_to_config, 'r')
     GLOBALS.CONFIG_lines = r.readlines()
     f = open(os.path.join(graphs_dir, 'information.txt'), "a")
-    f.write(str(min_loss))
+    f.write(str(results[1]))
     f.write("\n")
     f.write(personal_message)
     f.write("\n")

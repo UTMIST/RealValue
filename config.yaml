@@ -3,20 +3,20 @@ CNN_model: 'RegNet'
 dense_model:
   - 8
   - 4
-optimizer: 'Adam'
+optimizer: 'RMSProp'
 LR_scheduler: 'None'
 init_lr: 'None'
-momentum: 0.1
-weight_decay: 0.1
-learning_rate: 0.001
+momentum: 0.5
+weight_decay: 0.0005
+learning_rate: 0.1
 learning_rates: [0.001]
 beta: 0.7
 mini_batch_size: 16
 loss_function: "mean_absolute_percentage_error"
 #loss_function: "huber_loss"
-number_of_epochs: 200
-image_height: 150
-image_width: 150
+number_of_epochs: 100
+image_height: 128
+image_width: 128
 CNN_input_shape: [64, 64, 3]
 train_val_test_ratio: [0.70,0.10,0.20]
 augmentation_multiplier: 1

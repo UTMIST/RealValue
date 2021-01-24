@@ -7,7 +7,8 @@ from models.CNN_models.MiniVGGNet import MiniVGGNetModel
 from models.CNN_models.RegNet import RegNet
 
 def create_concat_network(Multi_Input):
-    Final_Fully_Connected_Network = layers.Dense(4, activation = 'relu')(Multi_Input)
+    Final_Fully_Connected_Network = layers.Dense(8, activation = 'relu')(Multi_Input)
+    #Final_Fully_Connected_Network = layers.BatchNormalization(axis=-1)(Final_Fully_Connected_Network)
     Final_Fully_Connected_Network = layers.Dense(1, activation = 'linear')(Final_Fully_Connected_Network)
     return Final_Fully_Connected_Network
 

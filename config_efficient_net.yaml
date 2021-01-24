@@ -1,0 +1,27 @@
+directory: 'raw_dataset'
+# CNN_model: 'RegNet'
+CNN_model: 'EfficientNet'
+dense_model:
+  - 8
+  - 4
+optimizer: 'Adam'
+LR_scheduler: 'None'
+init_lr: 'None'
+momentum: 0.1
+weight_decay: 0.1
+# lowering weight_decay: 0.000005 # doesn't seem to affect EfficientNet
+learning_rate: 0.005
+learning_rates: [0.005]
+beta: 0.7
+mini_batch_size: 16
+loss_function: "mean_absolute_percentage_error"
+number_of_epochs: 20
+image_height: 150
+image_width: 150
+# 224 for EfficientNet (as recommended by PhD dude #2)
+CNN_input_shape: [224, 224, 3]
+# CNN_input_shape: [64, 64, 3]
+train_val_test_ratio: [0.70,0.10,0.20]
+augmentation_multiplier: 1
+# import_mode: 'False'
+import_mode: 'True'

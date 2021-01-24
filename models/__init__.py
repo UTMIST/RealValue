@@ -5,6 +5,7 @@ from tensorflow.keras import layers
 from models.CNN_models.lenet import build_LeNet
 from models.CNN_models.MiniVGGNet import MiniVGGNetModel
 from models.CNN_models.RegNet import RegNet
+from models.CNN_models.EfficientNet import EfficientNet
 
 def create_concat_network(Multi_Input):
     Final_Fully_Connected_Network = layers.Dense(8, activation = 'relu')(Multi_Input)
@@ -34,6 +35,9 @@ def get_network(CNN_name, dense_layers, CNN_input_shape, input_shape=23) -> None
         CNN_model = ResNet18()
     elif CNN_name == 'RegNet':
         CNN_model = RegNet(input_shape=CNN_input_shape)
+    elif CNN_name == "EfficientNet":
+        """TODO match input shape to image size later"""
+        CNN_model = EfficientNet()
     else:
         CNN_model = None
     print('True')

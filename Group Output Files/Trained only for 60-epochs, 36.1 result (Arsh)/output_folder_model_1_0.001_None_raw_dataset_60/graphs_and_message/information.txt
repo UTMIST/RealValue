@@ -1,4 +1,4 @@
-38.05610656738281
+ 38.05610656738281
 Trained only for 60 epochs vs previously 100
 directory: 'raw_dataset'
 CNN_model: 'RegNet'

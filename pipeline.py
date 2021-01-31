@@ -88,7 +88,7 @@ def initialize_datasets():
 
     return True
 
-def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','splitted_dataset_0.7_0.1_0.2/val','splitted_dataset_0.7_0.1_0.2/test'], import_mode = 'True'):
+def create_data(directories=['splitted_dataset_0.84_0.01_0.15/train_augmented','splitted_dataset_0.84_0.01_0.15/val','splitted_dataset_0.84_0.01_0.15/test'], import_mode = 'True'):
 
 
     if GLOBALS.CONFIG['import_mode'] == 'False':

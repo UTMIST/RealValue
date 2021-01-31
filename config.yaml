@@ -1,5 +1,9 @@
 directory: 'raw_dataset'
 CNN_model: 'RegNet'
+
+# pretrained: True
+pretrained: False
+pretrained_weights_path: "Output_Files/efficient_net_20210124/output_folder_combined_0.001_None_raw_dataset_5/model_weights/model_weights.h5"
 dense_model:
   - 8
   - 4

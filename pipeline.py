@@ -131,11 +131,25 @@ def create_data(directories=['splitted_dataset_0.84_0.01_0.15/train_augmented','
 def create_models():
 
     CNN_type = GLOBALS.CONFIG['CNN_model']
-    Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
+
+    Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], \
+    CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
+
+    if GLOBALS.CONFIG['pretrained']:
+        CNN.trainable = False
+
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
     #Not updated from 63 commit
-    model = Model(inputs = [Dense_NN.input , CNN.input], outputs = create_concat_network(Multi_Input))
+    model = Model(inputs = [Dense_NN.input , CNN.input], outputs = create_concat_network(Multi_Input), name="combined")
+    if GLOBALS.CONFIG['pretrained']:
+        model.load_weights(GLOBALS.CONFIG['pretrained_weights_path'])
+    print("model.name (combined): %s" % model.name)
+    print("model.name (CNN): %s" % CNN.name)
+    print("model.trainable (CNN): %s" % CNN.trainable)
+    print("model.name (Dense): %s" % Dense_NN.name)
+    print("model.trainable (Dense_NN): %s" % Dense_NN.trainable)
+    model.summary()
 
     optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD,'RMSProp':keras.optimizers.RMSprop,'Adadelta':keras.optimizers.Adadelta}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr = GLOBALS.CONFIG['learning_rate'])

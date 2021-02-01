@@ -85,6 +85,7 @@ def initialize_datasets():
 
     return True
 
+
 def get_splitted_dataset_path():
     """
     Returns the path name of the splitted dataset

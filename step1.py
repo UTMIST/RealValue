@@ -7,6 +7,7 @@ import pandas as pd
 import global_vars as GLOBALS
 from sklearn.preprocessing import OneHotEncoder
 import yaml
+import platform
 
 '''
 How things were:
@@ -96,10 +97,16 @@ def merge_part_images(raw_img_dict):
     for file_name, img_list in raw_img_dict.items():
         merged_image = np.zeros((MERGED_IMAGE_HEIGHT, MERGED_IMAGE_WIDTH, 3), np.uint8)#img_list[0].dtype)
 
-        merged_image[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[0]
-        merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[1]
-        merged_image[0:IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[2]
-        merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[3]
+        if platform.system()=='Windows':
+            merged_image[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[0]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[1]
+            merged_image[0:IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[2]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[3]
+        else:
+            merged_image[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[2]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, 0: IMAGE_WIDTH] = img_list[3]
+            merged_image[0:IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[0]
+            merged_image[IMAGE_HEIGHT: MERGED_IMAGE_HEIGHT, IMAGE_WIDTH: MERGED_IMAGE_WIDTH] = img_list[1]
 
         output_dict[file_name] = merged_image
 
@@ -146,7 +153,7 @@ def true_dataframe(directory_path):
         final = list(map(float,final))
 
         new_df.loc[index]=final
-    new_df = new_df.drop('ZipCode', 1)
+    #new_df = new_df.drop('ZipCode', 1)
     return new_df
 
 def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None,max_vals=None):
@@ -173,6 +180,7 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         print(min_max_values)
     x_continuous_feats=['Bedrooms','Bathrooms','SqFt']
     y_continuous_feats=['Price']
+    categorical_feats=['ZipCode']
     continuous_feats = x_continuous_feats + y_continuous_feats
     #categorical_feats=['Bathrooms']
     for i, feature in enumerate(x_continuous_feats):
@@ -191,8 +199,11 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         new_df[feature]=(new_df[feature])/(max_val)
     cts_data=new_df[continuous_feats].values
 
-    #final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
-    final_stats_array = cts_data
+    print(new_df['ZipCode'].nunique())
+    cat_onehot = oneh_encoder.transform(new_df[categorical_feats]).toarray()
+
+    final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
+    #final_stats_array = cts_data
     #final_x_array is following [[one hot vec for beds, one hot vec for bathrooms, sqft as normalized quantity],(...)] #Note that each item in the list is a training example
     #final_price_array is following: [normalized price]
     final_x_array=final_stats_array[:,:-1]
@@ -202,6 +213,7 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
 
 #just pass in main_dataset/final as directory I think
 #splitting_paramter [train_ratio, val_ratio, test_ratio] example [0.7, 0.15, 0.15]
+
 def split_image_data(directory, tag='train'):
     file_list = os.listdir(directory)
     '''
@@ -253,9 +265,9 @@ def return_splits(directories):
     house_info_path = os.path.join(dataset_full_path,house_info)
     #Initialize OneHotEncoder and fit to full houseinfo.txt for categorical features
     df = true_dataframe(house_info_path)
-    categorical_feats=[]
+    categorical_feats=['ZipCode']
     oneh_encoder = OneHotEncoder()
-    #oneh_encoder.fit(df[categorical_feats])
+    oneh_encoder.fit(df[categorical_feats])
     #Fetch stats from train,valid,test images
     _,_,min_max,_ = split_stats_data(train_directory, tag='',oneh_encoder = oneh_encoder)
     train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])

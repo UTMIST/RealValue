@@ -1,5 +1,15 @@
 directory: 'raw_dataset'
-CNN_model: 'RegNet'
+# directory: 'toronto_raw_dataset'
+# directory: 'fake_raw_dataset'
+
+pretrained: True
+# pretrained: False
+# pretrained_weights_path: "Output_Files/efficient_net_20210124/output_folder_combined_0.001_None_raw_dataset_5/model_weights/model_weights.h5"
+pretrained_weights_path: "Output_Files/efficient_net_transfer_learning/output_folder_combined_0.001_None_raw_dataset_5/model_weights/model_weights.h5"
+
+# directory: 'raw_dataset'
+
+CNN_model: 'EfficientNet'
 dense_model:
   - 8
   - 4
@@ -7,17 +17,18 @@ optimizer: 'Adam'
 LR_scheduler: 'None'
 init_lr: 'None'
 momentum: 0.1
-weight_decay: 0.000005
+weight_decay: 0.1
 learning_rate: 0.001
 learning_rates: [0.001]
 beta: 0.7
-mini_batch_size: 8
+mini_batch_size: 16
 loss_function: "mean_absolute_percentage_error"
-#loss_function: "huber_loss"
-number_of_epochs: 100
+number_of_epochs: 5
 image_height: 150
 image_width: 150
-CNN_input_shape: [64, 64, 3]
+# 224 for EfficientNet (as recommended by PhD dude #2)
+CNN_input_shape: [224, 224, 3]
 train_val_test_ratio: [0.70,0.10,0.20]
-augmentation_multiplier: 1
-import_mode: 'True'
+augmentation_multiplier: 2
+import_mode: 'False'
+# import_mode: 'True'

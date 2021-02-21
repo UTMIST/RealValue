@@ -76,39 +76,55 @@ def initialize_datasets():
 
     ############################################################################
     #It is assumed that this script is in the same directory as the raw_dataset
-    current_working_dir = os.getcwd() #current working directory
-    dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset
-
-    ratio_str_list = [str(elem) for elem in train_val_test_ratio]
-    splitted_base_dir_name = 'splitted_dataset_' + '_'.join(ratio_str_list) #name of the splitted dataset
+    dataset_full_path = os.path.join(os.getcwd(), dataset_name) #FULL path of the original dataset
+    splitted_base_dir_name = get_splitted_dataset_path()  #name of the splitted dataset
 
     #check if the splitted/augmented dataset is already created; if not, then create it
-    if not os.path.isdir(os.path.join(current_working_dir, splitted_base_dir_name)):
+    if not os.path.isdir(os.path.join(os.getcwd(), splitted_base_dir_name)):
         split_and_augment_train_dataset(train_val_test_ratio, dataset_full_path, txt_filename_raw, n, split=True, augment=True)
 
     return True
 
+
+def get_splitted_dataset_path():
+    """
+    Returns the path name of the splitted dataset
+    """
+    dataset_name = GLOBALS.CONFIG['directory'] #name of the dataset
+    train_val_test_ratio = GLOBALS.CONFIG['train_val_test_ratio']#(0.70,0.10,0.20) #train, val, test ratio
+
+    ############################################################################
+    #It is assumed that this script is in the same directory as the raw_dataset
+    current_working_dir = os.getcwd() #current working directory
+
+    ratio_str_list = [str(elem) for elem in train_val_test_ratio]
+    #splitted_base_dir_name = 'splitted_dataset_' + '_'.join(ratio_str_list) #name of the splitted dataset
+    splitted_base_dir_name = 'splitted_' + dataset_name + '_' + '_'.join(ratio_str_list) #name of the splitted dataset
+    return splitted_base_dir_name
+
 def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','splitted_dataset_0.7_0.1_0.2/val','splitted_dataset_0.7_0.1_0.2/test'], import_mode = 'True'):
 
+    #RELATIVE path to the array files:
+    array_files_dir_path = 'array_files_' + GLOBALS.CONFIG['directory']
 
     if GLOBALS.CONFIG['import_mode'] == 'False':
         try:
-            shutil.rmtree('array_files')
+            shutil.rmtree(array_files_dir_path)
         except:
             pass
         try:
-            os.mkdir('array_files')
+            os.mkdir(array_files_dir_path)
         except:
             pass
         data_dict = return_splits(directories)#, GLOBALS.CONFIG['train_val_test_split'])
         for key in data_dict:
-            np.save(os.path.join('array_files',key),data_dict[key])
+            np.save(os.path.join(array_files_dir_path,key),data_dict[key])
     else:
         data_dict={}
         key_vals = ['train_images','train_stats','train_prices','validation_images','validation_stats','validation_prices','test_images','test_stats','test_prices', 'test_min_max', 'train_min_max', 'validation_min_max'] # <--- added 'test_min_max', 'train_min_max', 'val_min_max'
         try:
             for key in key_vals:
-                data_dict[key] = np.load(os.path.join('array_files',key+'.npy'),allow_pickle=True)
+                data_dict[key] = np.load(os.path.join(array_files_dir_path,key+'.npy'),allow_pickle=True)
         except:
             print("Your array files folder doesn't exist, please set import_mode in config.yaml to be False.")
             print("Once it begins training, KeyBoard Interrupt and set import_mode to be True.")
@@ -131,11 +147,25 @@ def create_data(directories=['splitted_dataset_0.7_0.1_0.2/train_augmented','spl
 def create_models():
 
     CNN_type = GLOBALS.CONFIG['CNN_model']
-    Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
+
+    Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], \
+    CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
+
+    if GLOBALS.CONFIG['pretrained']:
+        CNN.trainable = False
+
     Multi_Input = tf.keras.layers.concatenate([Dense_NN.output, CNN.output])
 
     #Not updated from 63 commit
-    model = Model(inputs = [Dense_NN.input , CNN.input], outputs = create_concat_network(Multi_Input))
+    model = Model(inputs = [Dense_NN.input , CNN.input], outputs = create_concat_network(Multi_Input), name="combined")
+    if GLOBALS.CONFIG['pretrained']:
+        model.load_weights(GLOBALS.CONFIG['pretrained_weights_path'])
+    print("model.name (combined): %s" % model.name)
+    print("model.name (CNN): %s" % CNN.name)
+    print("model.trainable (CNN): %s" % CNN.trainable)
+    print("model.name (Dense): %s" % Dense_NN.name)
+    print("model.trainable (Dense_NN): %s" % Dense_NN.trainable)
+    model.summary()
 
     optimizer_functions={'Adam':keras.optimizers.Adam,'SGD':keras.optimizers.SGD,'RMSProp':keras.optimizers.RMSprop,'Adadelta':keras.optimizers.Adadelta}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr = GLOBALS.CONFIG['learning_rate'])
@@ -161,7 +191,7 @@ def create_Dense_NN():
 
 def create_CNN():
     CNN_type = GLOBALS.CONFIG['CNN_model']
-    _, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
+    _, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], CNN_output_shape=GLOBALS.CONFIG['CNN_output_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
     optimizer_functions={'Adam':keras.optimizers.Adam}
     optimizer=optimizer_functions[GLOBALS.CONFIG['optimizer']](lr= GLOBALS.CONFIG['learning_rate'])
 
@@ -385,7 +415,7 @@ def process_outputs(model, history_dict, results, scheduler, dataset, number_of_
     r = open(path_to_config, 'r')
     GLOBALS.CONFIG_lines = r.readlines()
     f = open(os.path.join(graphs_dir, 'information.txt'), "a")
-    f.write(str(min_loss))
+    f.write(str(results[1]))
     f.write("\n")
     f.write(personal_message)
     f.write("\n")
@@ -402,7 +432,9 @@ def the_setup(path_to_config='config.yaml'):
     print("start initializing dataset")
     initialize_datasets()
     print("finished initializing dataset")
-    data_dict = create_data()
+
+    directories=[get_splitted_dataset_path() + "/train_augmented", get_splitted_dataset_path() + "/val", get_splitted_dataset_path() + "/test"]
+    data_dict = create_data(directories=directories, import_mode=GLOBALS.CONFIG["import_mode"])
     model, optimizer = create_models()
     return data_dict, model, optimizer
 

@@ -23,7 +23,7 @@ ENV/
 env.bak/
 venv.bak/
 
-# Files
+
 config.yaml/
 key
 key.pub
@@ -31,3 +31,100 @@ CA.txt
 192_frontal.jpeg
 TorontoDataset*
 Toronto Dataset*
+config.yaml
+.DS_Store
+157-165 (162 missing) toronto/157_bathroom.jpeg
+157-165 (162 missing) toronto/157_bedroom.jpeg
+157-165 (162 missing) toronto/157_frontal.jpeg
+157-165 (162 missing) toronto/157_kitchen.jpeg
+157-165 (162 missing) toronto/158_bathroom.jpeg
+157-165 (162 missing) toronto/158_bedroom.jpeg
+157-165 (162 missing) toronto/158_frontal.jpeg
+157-165 (162 missing) toronto/158_kitchen.jpeg
+157-165 (162 missing) toronto/159_bathroom.jpeg
+157-165 (162 missing) toronto/159_bedroom.jpeg
+157-165 (162 missing) toronto/159_frontal.jpeg
+157-165 (162 missing) toronto/159_kitchen.jpeg
+157-165 (162 missing) toronto/160_bathroom.jpeg
+157-165 (162 missing) toronto/160_bedroom.jpeg
+157-165 (162 missing) toronto/160_frontal.jpeg
+157-165 (162 missing) toronto/160_kitchen.jpeg
+157-165 (162 missing) toronto/161_bathroom.jpeg
+157-165 (162 missing) toronto/161_bedroom.jpeg
+157-165 (162 missing) toronto/161_frontal.jpeg
+157-165 (162 missing) toronto/161_kitchen.jpeg
+157-165 (162 missing) toronto/163_bathroom.jpeg
+157-165 (162 missing) toronto/163_bedroom.jpeg
+157-165 (162 missing) toronto/163_frontal.jpeg
+157-165 (162 missing) toronto/163_kitchen.jpeg
+157-165 (162 missing) toronto/164_bathroom.jpeg
+157-165 (162 missing) toronto/164_bedroom.jpeg
+157-165 (162 missing) toronto/164_frontal.jpeg
+157-165 (162 missing) toronto/164_kitchen.jpeg
+157-165 (162 missing) toronto/165_bathroom.jpeg
+157-165 (162 missing) toronto/165_bedroom.jpeg
+157-165 (162 missing) toronto/165_frontal.jpeg
+157-165 (162 missing) toronto/165_kitchen.jpeg
+229-243 toronto/229_bathroom.jpeg
+229-243 toronto/229_bedroom.jpeg
+229-243 toronto/229_frontal.jpeg
+229-243 toronto/229_kitchen.jpeg
+229-243 toronto/230_bathroom.jpeg
+229-243 toronto/230_bedroom.jpeg
+229-243 toronto/230_frontal.jpeg
+229-243 toronto/230_kitchen.jpeg
+229-243 toronto/231_bathroom.jpeg
+229-243 toronto/231_bedroom.jpeg
+229-243 toronto/231_frontal.jpeg
+229-243 toronto/231_kitchen.jpeg
+229-243 toronto/232_bathroom.jpeg
+229-243 toronto/232_bedroom.jpeg
+229-243 toronto/232_frontal.jpeg
+229-243 toronto/232_kitchen.jpeg
+229-243 toronto/233_bathroom.jpeg
+229-243 toronto/233_bedroom.jpeg
+229-243 toronto/233_frontal.jpeg
+229-243 toronto/233_kitchen.jpeg
+229-243 toronto/234_bathroom.jpeg
+229-243 toronto/234_bedroom.jpeg
+229-243 toronto/234_frontal.jpeg
+229-243 toronto/234_kitchen.jpeg
+229-243 toronto/235_bathroom.jpeg
+229-243 toronto/235_bedroom.jpeg
+229-243 toronto/235_frontal.jpeg
+229-243 toronto/235_kitchen.jpeg
+229-243 toronto/236_bathroom.jpeg
+229-243 toronto/236_bedroom.jpeg
+229-243 toronto/236_frontal.jpeg
+229-243 toronto/236_kitchen.jpeg
+229-243 toronto/237_bathroom.jpeg
+229-243 toronto/237_bedroom.jpeg
+229-243 toronto/237_frontal.jpeg
+229-243 toronto/237_kitchen.jpeg
+229-243 toronto/238_bathroom.jpeg
+229-243 toronto/238_bedroom.jpeg
+229-243 toronto/238_frontal.jpeg
+229-243 toronto/238_kitchen.jpeg
+229-243 toronto/239_bathroom.jpeg
+229-243 toronto/239_bedroom.jpeg
+229-243 toronto/239_frontal.jpeg
+229-243 toronto/239_kitchen.jpeg
+229-243 toronto/240_bathroom.jpeg
+229-243 toronto/240_bedroom.jpeg
+229-243 toronto/240_frontal.jpeg
+229-243 toronto/240_kitchen.jpeg
+229-243 toronto/241_bathroom.jpeg
+229-243 toronto/241_bedroom.jpeg
+229-243 toronto/241_frontal.jpeg
+229-243 toronto/241_kitchen.jpeg
+229-243 toronto/242_bathroom.jpeg
+229-243 toronto/242_bedroom.jpeg
+229-243 toronto/242_frontal.jpeg
+229-243 toronto/242_kitchen.jpeg
+229-243 toronto/243_bathroom.jpeg
+229-243 toronto/243_bedroom.jpeg
+229-243 toronto/243_frontal.jpeg
+229-243 toronto/243_kitchen.jpeg
+temp.txt
+.DS_Store
+temp.txt

@@ -140,7 +140,11 @@ def compile_full_image(folder_path, output_dir):
 
 def true_dataframe(directory_path):
     df = pd.read_fwf(directory_path, header=None)
-    new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','ZipCode','Price'])
+    path_split = directory_path.split(os.sep)
+    if path_split[0]!='toronto_raw_dataset':
+        new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','ZipCode','Price'])
+    else:
+        new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])
 
     def remove_values_from_list(the_list, val):
        return [value for value in the_list if value != val]
@@ -178,9 +182,28 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         min_max_values=[[bedroom_min,bathroom_min,sqft_min,price_min],
                         [bedroom_max,bathroom_max,sqft_max,price_max]]
         print(min_max_values)
-    x_continuous_feats=['Bedrooms','Bathrooms','SqFt']
+    if directory=='toronto_raw_dataset':
+        x_continuous_feats=['Bedrooms','Bathrooms','Sqft','Lat','Long']
+        categorical_feats=[]
+        lat_max = new_df['Lat'].max()
+        long_max = new_df['long'].max()
+        lat_min = new_df['Lat'].min()
+        long_min = new_df['Long'].min()
+        if tag!='':
+            min_max_values['longtitude_min'] = long_min
+            min_max_values['latitude_min'] = lat_min
+            min_max_values['longtitude_max'] = long_max
+            min_max_values['latitude_max'] = lat_max
+        else:
+            min_max_values[0]+=[lat_min]
+            min_max_values[1]+=[lat_max]
+            min_max_values[0]+=[long_min]
+            min_max_values[1]+=[long_max]
+            pass
+    else:
+        x_continuous_feats=['Bedrooms','Bathrooms','SqFt']
+        categorical_feats=['ZipCode']
     y_continuous_feats=['Price']
-    categorical_feats=['ZipCode']
     continuous_feats = x_continuous_feats + y_continuous_feats
     #categorical_feats=['Bathrooms']
     for i, feature in enumerate(x_continuous_feats):
@@ -199,10 +222,12 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         new_df[feature]=(new_df[feature])/(max_val)
     cts_data=new_df[continuous_feats].values
 
-    print(new_df['ZipCode'].nunique())
-    cat_onehot = oneh_encoder.transform(new_df[categorical_feats]).toarray()
-
-    final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
+    #print(new_df['ZipCode'].nunique())
+    if directory!='toronto_raw_dataset':
+        cat_onehot = oneh_encoder.transform(new_df[categorical_feats]).toarray()
+        final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
+    else:
+        final_stats_array = cts_data
     #final_stats_array = cts_data
     #final_x_array is following [[one hot vec for beds, one hot vec for bathrooms, sqft as normalized quantity],(...)] #Note that each item in the list is a training example
     #final_price_array is following: [normalized price]
@@ -245,6 +270,7 @@ def split_image_data(directory, tag='train'):
     return images
 
 def return_splits(directories):
+    print(directories)
     [train_directory, val_directory, test_directory]=directories
     train_directory_final = train_directory + '_final'
     val_directory_final = val_directory + '_final'
@@ -257,8 +283,9 @@ def return_splits(directories):
     train_images = split_image_data(train_directory_final,"Train")
     validation_images = split_image_data(val_directory_final,"Validation")
     test_images = split_image_data(test_directory_final,"Test")
+    assert(0)
     #Locate path of full houseinfo.txt
-    dataset_name = 'raw_dataset'
+    dataset_name = GLOBALS.CONFIG[]
     house_info = 'HousesInfo.txt'
     current_working_dir = os.getcwd() #current working directory
     dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset

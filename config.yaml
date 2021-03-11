@@ -1,9 +1,10 @@
-directory: 'raw_dataset'
-# directory: 'toronto_raw_dataset'
+# directory: 'raw_dataset'
+directory: 'toronto_raw_dataset'
 # directory: 'fake_raw_dataset'
 
-pretrained: True
-# pretrained: False
+# Set pretrained True for transfer learning?
+# pretrained: True
+pretrained: False
 # pretrained_weights_path: "Output_Files/efficient_net_20210124/output_folder_combined_0.001_None_raw_dataset_5/model_weights/model_weights.h5"
 pretrained_weights_path: "Output_Files/efficient_net_transfer_learning/output_folder_combined_0.001_None_raw_dataset_5/model_weights/model_weights.h5"
 
@@ -23,7 +24,7 @@ learning_rates: [0.001]
 beta: 0.7
 mini_batch_size: 16
 loss_function: "mean_absolute_percentage_error"
-number_of_epochs: 5
+number_of_epochs: 20
 image_height: 150
 image_width: 150
 # 224 for EfficientNet (as recommended by PhD dude #2)

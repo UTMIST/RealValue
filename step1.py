@@ -139,30 +139,63 @@ def compile_full_image(folder_path, output_dir):
     return True
 
 def true_dataframe(directory_path):
-    df = pd.read_fwf(directory_path, header=None)
-    path_split = directory_path.split(os.sep)
-    if path_split[0]!='toronto_raw_dataset':
-        new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','ZipCode','Price'])
-    else:
-        new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])
+    '''if directory_path.endswith('.txt'):
+        df = pd.read_fwf(directory_path, header=None)
+        path_split = directory_path.split(os.sep)
+        print(df,df.columns)
+        if path_split[0]!='toronto_raw_dataset':
+            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Zip Code','Price'])
+        else:
+            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])
 
-    def remove_values_from_list(the_list, val):
-       return [value for value in the_list if value != val]
+        def remove_values_from_list(the_list, val):
+           return [value for value in the_list if value != val]
+        print(new_df)
+        for index,row in df.iterrows():
+            try:
+                final=row.tolist()[0].split()
+            except:
+                final=(str(row.tolist()[0])+' '+row.tolist()[1]).split()
+            final = list(map(float,final))
 
-    for index,row in df.iterrows():
-        try:
-            final=row.tolist()[0].split()
-        except:
-            final=(str(row.tolist()[0])+' '+row.tolist()[1]).split()
-        final = list(map(float,final))
+            new_df.loc[index]=final
+        #new_df = new_df.drop('Zip Code', 1)'''
+    if directory_path.endswith('.txt'):
+        df = pd.read_csv(directory_path, header=None,sep='\s+')
+        desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Lat','Long']
+        temp_dict={}
+        for index,i in enumerate(df.columns):
+            temp_dict[i] = desired_cols[index]
+        new_df = df.rename(columns=temp_dict)
+        path_split = directory_path.split(os.sep)
+        print(new_df,new_df.columns)
+        '''if path_split[0]!='toronto_raw_dataset':
+            new_df=pd.DataFrame(data=df,columns=['Bedrooms','Bathrooms','SqFt','Zip Code','Price'])
+        else:
+            new_df=pd.DataFrame(data=df,columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])'''
 
-        new_df.loc[index]=final
-    #new_df = new_df.drop('ZipCode', 1)
+        def remove_values_from_list(the_list, val):
+           return [value for value in the_list if value != val]
+        print('----------------')
+        print(new_df)
+        print('----------------')
+        '''for index,row in df.iterrows():
+            try:
+                final=row.tolist()[0].split()
+            except:
+                final=(str(row.tolist()[0])+' '+row.tolist()[1]).split()
+            final = list(map(float,final))
+
+            new_df.loc[index]=final'''
+
+        #new_df = new_df.drop('Zip Code', 1)
     return new_df
 
 def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None,max_vals=None):
+    print(directory)
     if tag=='':
-        new_df = true_dataframe('raw_dataset'+os.sep+'HousesInfo.txt')
+        # new_df = true_dataframe('raw_dataset'+os.sep+'HousesInfo.txt')
+        new_df = true_dataframe(GLOBALS.CONFIG['directory']+os.sep+'HousesInfo.txt')
     else:
         new_df = true_dataframe(directory+'/'+tag+'_'+'HousesInfo.txt')
 
@@ -182,11 +215,11 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         min_max_values=[[bedroom_min,bathroom_min,sqft_min,price_min],
                         [bedroom_max,bathroom_max,sqft_max,price_max]]
         print(min_max_values)
-    if directory=='toronto_raw_dataset':
-        x_continuous_feats=['Bedrooms','Bathrooms','Sqft','Lat','Long']
+    if 'toronto_raw_dataset' in directory:
+        x_continuous_feats=['Bedrooms','Bathrooms','SqFt','Lat','Long']
         categorical_feats=[]
         lat_max = new_df['Lat'].max()
-        long_max = new_df['long'].max()
+        long_max = new_df['Long'].max()
         lat_min = new_df['Lat'].min()
         long_min = new_df['Long'].min()
         if tag!='':
@@ -202,7 +235,7 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
             pass
     else:
         x_continuous_feats=['Bedrooms','Bathrooms','SqFt']
-        categorical_feats=['ZipCode']
+        categorical_feats=['Zip Code']
     y_continuous_feats=['Price']
     continuous_feats = x_continuous_feats + y_continuous_feats
     #categorical_feats=['Bathrooms']
@@ -222,8 +255,8 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         new_df[feature]=(new_df[feature])/(max_val)
     cts_data=new_df[continuous_feats].values
 
-    #print(new_df['ZipCode'].nunique())
-    if directory!='toronto_raw_dataset':
+    #print(new_df['Zip Code'].nunique())
+    if 'toronto_raw_dataset' not in directory:
         cat_onehot = oneh_encoder.transform(new_df[categorical_feats]).toarray()
         final_stats_array= np.concatenate([cat_onehot,cts_data], axis=1)
     else:
@@ -259,6 +292,7 @@ def split_image_data(directory, tag='train'):
     #iterate through all images in the folder
     img_counter = 0
     for img_file in file_list:
+
         img_file_path = os.path.join(directory, img_file)
         img = cv2.imread(img_file_path)
         img_counter += 1
@@ -283,28 +317,34 @@ def return_splits(directories):
     train_images = split_image_data(train_directory_final,"Train")
     validation_images = split_image_data(val_directory_final,"Validation")
     test_images = split_image_data(test_directory_final,"Test")
-    assert(0)
     #Locate path of full houseinfo.txt
-    dataset_name = GLOBALS.CONFIG[]
+    dataset_name = GLOBALS.CONFIG['directory']
     house_info = 'HousesInfo.txt'
     current_working_dir = os.getcwd() #current working directory
     dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset
     house_info_path = os.path.join(dataset_full_path,house_info)
     #Initialize OneHotEncoder and fit to full houseinfo.txt for categorical features
     df = true_dataframe(house_info_path)
-    categorical_feats=['ZipCode']
-    oneh_encoder = OneHotEncoder()
-    oneh_encoder.fit(df[categorical_feats])
-    #Fetch stats from train,valid,test images
-    _,_,min_max,_ = split_stats_data(train_directory, tag='',oneh_encoder = oneh_encoder)
-    train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
-    validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
-    test_stats, test_prices, test_min_max, test_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
+    print(dataset_name,'dataset_name')
+    if 'toronto_raw_dataset' not in dataset_name:
+        categorical_feats=['Zip Code']
+        oneh_encoder = OneHotEncoder()
+        oneh_encoder.fit(df[categorical_feats])
+        #Fetch stats from train,valid,test images
+        _,_,min_max,_ = split_stats_data(train_directory, tag='',oneh_encoder = oneh_encoder)
+        train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
+        validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
+        test_stats, test_prices, test_min_max, test_oneh_encoder = split_stats_data(test_directory, tag='test',oneh_encoder = oneh_encoder,min_vals=min_max[0],max_vals=min_max[1])
+    else:
+        _,_,min_max,_ = split_stats_data(train_directory, tag='')
+        train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',min_vals=min_max[0],max_vals=min_max[1])
+        validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',min_vals=min_max[0],max_vals=min_max[1])
+        test_stats, test_prices, test_min_max, test_oneh_encoder = split_stats_data(test_directory, tag='test',min_vals=min_max[0],max_vals=min_max[1])
     #Create dict with all required information
     main_dict={'train_images':train_images/255.0,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images/255.0,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images/255.0,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
     return main_dict
 
 if __name__ == "__main__":
-
+    true_dataframe('toronto_raw_dataset'+os.sep+'HousesInfo.txt')
     #compile_full_image("toronto_dataset", "processed_dataset")
     '''compile_full_image("raw_dataset", "raw_dataset/final")'''

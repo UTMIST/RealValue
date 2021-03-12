@@ -9,19 +9,6 @@ from sklearn.preprocessing import OneHotEncoder
 import yaml
 import platform
 
-'''
-How things were:
-One folder --> Create 4-to-1 images out of that, then we'd just create train_images (1-300), val_images(300-400), test_images (400-535)
-
-Data Augmentation on 70% of the Images
-Matthew will provide us:
-1. Train folder (has augmented)
-2. Validation folder
-3. Test folder
-
-For each of the above folder 4-to-1, and then appropriately put into train_images, val_images, test_images and other stuff.
-'''
-
 # Set individual image sizes here
 
 # IMAGE_HEIGHT = 32
@@ -43,9 +30,6 @@ initialize_hyper('config.yaml')
 
 IMAGE_HEIGHT = GLOBALS.CONFIG['CNN_input_shape'][0]//2
 IMAGE_WIDTH = GLOBALS.CONFIG['CNN_input_shape'][0]//2
-#
-# IMAGE_HEIGHT = 720
-# IMAGE_WIDTH = 720
 
 MERGED_IMAGE_HEIGHT = 2 * IMAGE_HEIGHT
 MERGED_IMAGE_WIDTH = 2 * IMAGE_WIDTH
@@ -71,7 +55,6 @@ def resize_image(img, method="squeeze"):
          res = img[0:IMAGE_HEIGHT, 0: IMAGE_WIDTH]
     else:
         res = img
-
 
     return res
 
@@ -139,7 +122,7 @@ def compile_full_image(folder_path, output_dir):
     return True
 
 def true_dataframe(directory_path):
-    '''if directory_path.endswith('.txt'):
+    if 'raw_dataset' in directory_path and 'toronto_raw_dataset' not in directory_path:
         df = pd.read_fwf(directory_path, header=None)
         path_split = directory_path.split(os.sep)
         print(df,df.columns)
@@ -159,8 +142,9 @@ def true_dataframe(directory_path):
             final = list(map(float,final))
 
             new_df.loc[index]=final
-        #new_df = new_df.drop('Zip Code', 1)'''
-    if directory_path.endswith('.txt'):
+        #new_df = new_df.drop('Zip Code', 1)
+    else:
+        print(directory_path)
         df = pd.read_csv(directory_path, header=None,sep='\s+')
         desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Lat','Long']
         temp_dict={}
@@ -169,26 +153,11 @@ def true_dataframe(directory_path):
         new_df = df.rename(columns=temp_dict)
         path_split = directory_path.split(os.sep)
         print(new_df,new_df.columns)
-        '''if path_split[0]!='toronto_raw_dataset':
-            new_df=pd.DataFrame(data=df,columns=['Bedrooms','Bathrooms','SqFt','Zip Code','Price'])
-        else:
-            new_df=pd.DataFrame(data=df,columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])'''
-
         def remove_values_from_list(the_list, val):
            return [value for value in the_list if value != val]
         print('----------------')
         print(new_df)
         print('----------------')
-        '''for index,row in df.iterrows():
-            try:
-                final=row.tolist()[0].split()
-            except:
-                final=(str(row.tolist()[0])+' '+row.tolist()[1]).split()
-            final = list(map(float,final))
-
-            new_df.loc[index]=final'''
-
-        #new_df = new_df.drop('Zip Code', 1)
     return new_df
 
 def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None,max_vals=None):
@@ -309,20 +278,24 @@ def return_splits(directories):
     train_directory_final = train_directory + '_final'
     val_directory_final = val_directory + '_final'
     test_directory_final = test_directory + '_final'
+
     #Compile 4 images into one and save them in respective directory (e.g 'train_directory_final' for train images)
     compile_full_image(train_directory,train_directory_final)
     compile_full_image(val_directory,val_directory_final)
     compile_full_image(test_directory,test_directory_final)
+
     #Fetch images from train,valid,test images
     train_images = split_image_data(train_directory_final,"Train")
     validation_images = split_image_data(val_directory_final,"Validation")
     test_images = split_image_data(test_directory_final,"Test")
+
     #Locate path of full houseinfo.txt
     dataset_name = GLOBALS.CONFIG['directory']
     house_info = 'HousesInfo.txt'
     current_working_dir = os.getcwd() #current working directory
     dataset_full_path = os.path.join(current_working_dir, dataset_name) #FULL path of the original dataset
     house_info_path = os.path.join(dataset_full_path,house_info)
+
     #Initialize OneHotEncoder and fit to full houseinfo.txt for categorical features
     df = true_dataframe(house_info_path)
     print(dataset_name,'dataset_name')
@@ -340,11 +313,12 @@ def return_splits(directories):
         train_stats, train_prices, train_min_max, train_oneh_encoder = split_stats_data(train_directory, tag='train',min_vals=min_max[0],max_vals=min_max[1])
         validation_stats, validation_prices, validation_min_max, train_oneh_encoder = split_stats_data(val_directory, tag='val',min_vals=min_max[0],max_vals=min_max[1])
         test_stats, test_prices, test_min_max, test_oneh_encoder = split_stats_data(test_directory, tag='test',min_vals=min_max[0],max_vals=min_max[1])
+
     #Create dict with all required information
     main_dict={'train_images':train_images/255.0,'train_stats':train_stats,'train_prices':train_prices,'validation_images':validation_images/255.0,'validation_stats':validation_stats,'validation_prices':validation_prices,'test_images':test_images,'test_images':test_images/255.0,'test_stats':test_stats,'test_prices':test_prices, 'train_min_max':train_min_max,'validation_min_max':validation_min_max,'test_min_max':test_min_max}
     return main_dict
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     true_dataframe('toronto_raw_dataset'+os.sep+'HousesInfo.txt')
     #compile_full_image("toronto_dataset", "processed_dataset")
-    '''compile_full_image("raw_dataset", "raw_dataset/final")'''
+    compile_full_image("raw_dataset", "raw_dataset/final")'''

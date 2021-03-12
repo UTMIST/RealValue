@@ -14,15 +14,10 @@ import global_vars as GLOBALS
 import time
 import numpy as np
 import random
-# from models import get_network
 import models
 from models import get_network, create_concat_network
 from split_and_augment_dataset import split_and_augment_train_dataset
 from contextlib import contextmanager
-
-# from models import get_network
-#from models.CNN_models.lenet import LeNet
-#from models.dense_models.simple_densenet import SimpleDenseNet
 
 # Set global seeds for more deterministic training
 SEED = 2
@@ -84,7 +79,6 @@ def initialize_datasets():
         split_and_augment_train_dataset(train_val_test_ratio, dataset_full_path, txt_filename_raw, n, split=True, augment=True)
 
     return True
-
 
 def get_splitted_dataset_path():
     """

@@ -122,20 +122,42 @@ def compile_full_image(folder_path, output_dir):
     return True
 
 def true_dataframe(directory_path):
-    print(directory_path)
-    df = pd.read_csv(directory_path, header=None,sep='\s+')
     if 'raw_dataset' in directory_path and 'toronto_raw_dataset' not in directory_path:
-        desired_cols = ['Bedrooms','Bathrooms','SqFt','Zip Code','Price']
+        df = pd.read_fwf(directory_path, header=None)
+        path_split = directory_path.split(os.sep)
+        print(df,df.columns)
+        if path_split[0]!='toronto_raw_dataset':
+            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Zip Code','Price'])
+        else:
+            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])
+
+        def remove_values_from_list(the_list, val):
+           return [value for value in the_list if value != val]
+        print(new_df)
+        for index,row in df.iterrows():
+            try:
+                final=row.tolist()[0].split()
+            except:
+                final=(str(row.tolist()[0])+' '+row.tolist()[1]).split()
+            final = list(map(float,final))
+
+            new_df.loc[index]=final
+        #new_df = new_df.drop('Zip Code', 1)
     else:
+        print(directory_path)
+        df = pd.read_csv(directory_path, header=None,sep='\s+')
         desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Lat','Long']
-    temp_dict={}
-    for index,i in enumerate(df.columns):
-        temp_dict[i] = desired_cols[index]
-    new_df = df.rename(columns=temp_dict)
-    print(new_df,new_df.columns)
-    print('----------------')
-    print(new_df)
-    print('----------------')
+        temp_dict={}
+        for index,i in enumerate(df.columns):
+            temp_dict[i] = desired_cols[index]
+        new_df = df.rename(columns=temp_dict)
+        path_split = directory_path.split(os.sep)
+        print(new_df,new_df.columns)
+        def remove_values_from_list(the_list, val):
+           return [value for value in the_list if value != val]
+        print('----------------')
+        print(new_df)
+        print('----------------')
     return new_df
 
 def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None,max_vals=None):

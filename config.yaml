@@ -1,10 +1,10 @@
 # directory: 'raw_dataset'
-directory: 'toronto_raw_dataset'
+directory: 'toronto_zip_raw_dataset'
 # directory: 'fake_raw_dataset'
 
 # Set pretrained True for transfer learning?
 # pretrained: True
-pretrained: True
+pretrained: False
 # pretrained_weights_path: "Output_Files/efficient_net_20210124/output_folder_combined_0.001_None_raw_dataset_5/model_weights/model_weights.h5"
 pretrained_weights_path: "Output_Files/model_weights.h5"
 
@@ -29,7 +29,7 @@ image_height: 150
 image_width: 150
 # 224 for EfficientNet (as recommended by PhD dude #2)
 CNN_input_shape: [224, 224, 3]
-train_val_test_ratio: [0.9,0.09,0.01]
+train_val_test_ratio: [0.9,0.01,0.09]
 augmentation_multiplier: 2
 # import_mode: 'False'
 import_mode: 'False'

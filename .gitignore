@@ -5,6 +5,7 @@ Output_Files/
 #array_files/
 splitted_*
 toronto_dataset
+array_files_*
 Group
 
 */.DS_Store

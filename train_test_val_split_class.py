@@ -44,6 +44,7 @@ class train_test_val_split_class:
             if entry.is_file() and (not entry.path.endswith(".txt")):
                 num_images += 1
         num_houses = int(num_images / 4) #total number of houses
+        print(num_houses)
 
         num_train = int(math.floor(num_houses * ratio[0])) #number of houses for training
         num_val = int(math.ceil(num_houses * ratio[1])) #number of houses for validation

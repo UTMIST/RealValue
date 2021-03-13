@@ -145,6 +145,8 @@ def create_models():
     Dense_NN, CNN = get_network(CNN_type, dense_layers=GLOBALS.CONFIG['dense_model'], \
     CNN_input_shape=GLOBALS.CONFIG['CNN_input_shape'], input_shape=GLOBALS.CONFIG['input_shape'])
 
+    #CNN.load_weights
+
     if GLOBALS.CONFIG['pretrained']:
         CNN.trainable = False
 
@@ -262,6 +264,7 @@ def train(data_dict, model, optimizer, path_to_config='config.yaml'):
 def save_model(model, model_dir):
     try:
         path = os.path.join(model_dir, "model_weights.h5")
+        print(model.summary())
         model.save_weights(path)
     except:
         print("error saving model weights")

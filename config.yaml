@@ -29,7 +29,7 @@ image_height: 150
 image_width: 150
 # 224 for EfficientNet (as recommended by PhD dude #2)
 CNN_input_shape: [224, 224, 3]
-train_val_test_ratio: [0.85,0.14,0.01]
+train_val_test_ratio: [0.88,0.11,0.01]
 augmentation_multiplier: 2
 import_mode: 'False'
 # import_mode: 'True'

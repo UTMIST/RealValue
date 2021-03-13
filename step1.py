@@ -129,7 +129,7 @@ def true_dataframe(directory_path):
         if path_split[0]!='toronto_raw_dataset':
             new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Zip Code','Price'])
         else:
-            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])
+            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Long','Lat'])
 
         def remove_values_from_list(the_list, val):
            return [value for value in the_list if value != val]
@@ -146,7 +146,7 @@ def true_dataframe(directory_path):
     else:
         print(directory_path)
         df = pd.read_csv(directory_path, header=None,sep='\s+')
-        desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Lat','Long']
+        desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Long','Lat']
         temp_dict={}
         for index,i in enumerate(df.columns):
             temp_dict[i] = desired_cols[index]

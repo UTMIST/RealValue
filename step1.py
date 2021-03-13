@@ -129,7 +129,7 @@ def true_dataframe(directory_path):
         if path_split[0]!='toronto_raw_dataset':
             new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Zip Code','Price'])
         else:
-            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Long','Lat'])
+            new_df=pd.DataFrame(columns=['Bedrooms','Bathrooms','SqFt','Price','Lat','Long'])
 
         def remove_values_from_list(the_list, val):
            return [value for value in the_list if value != val]
@@ -146,7 +146,7 @@ def true_dataframe(directory_path):
     else:
         print(directory_path)
         df = pd.read_csv(directory_path, header=None,sep='\s+')
-        desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Long','Lat']
+        desired_cols = ['Bedrooms','Bathrooms','SqFt','Price','Lat','Long']
         temp_dict={}
         for index,i in enumerate(df.columns):
             temp_dict[i] = desired_cols[index]
@@ -191,6 +191,8 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         long_max = new_df['Long'].max()
         lat_min = new_df['Lat'].min()
         long_min = new_df['Long'].min()
+        print(lat_min,long_min,lat_max,long_max)
+        #exit()
         if tag!='':
             min_max_values['longtitude_min'] = long_min
             min_max_values['latitude_min'] = lat_min
@@ -215,7 +217,11 @@ def split_stats_data(directory, tag = 'train', oneh_encoder = None,min_vals=None
         else:
             min_val = min_vals[i]
             max_val = max_vals[i]
-        new_df[feature]=(new_df[feature]-min_val)/(max_val-min_val)
+        if feature!='Lat' and feature!='Long':
+            new_df[feature]=(new_df[feature]-min_val)/(max_val-min_val)
+        if feature == 'Lat':# or feature=='Lat':
+            print(new_df[feature])
+            #exit()
     for i, feature in enumerate(y_continuous_feats):
         if max_vals == None:
             max_val = new_df[feature].max()

@@ -273,7 +273,7 @@ def split_image_data(directory, tag='train'):
     return images
 
 def return_splits(directories):
-    print(directories)
+
     [train_directory, val_directory, test_directory]=directories
     train_directory_final = train_directory + '_final'
     val_directory_final = val_directory + '_final'
